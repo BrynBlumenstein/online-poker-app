@@ -1,0 +1,19 @@
+{
+  "name": "online-poker-app",
+  "version": "1.0.0",
+  "description": "A web application for playing poker games with other players online.",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BrynBlumenstein/online-poker-app.git"
+  },
+  "keywords": [],
+  "author": "Bryn Blumenstein",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/BrynBlumenstein/online-poker-app/issues"
+  },
+  "homepage": "https://github.com/BrynBlumenstein/online-poker-app#readme"
+}
