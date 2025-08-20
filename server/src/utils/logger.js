@@ -1,8 +1,3 @@
-/**
- * Provides functions for logging messages with different log levels.
- * Messages are prefixed with an ANSI escape sequence to add a color-coded tag based on their level.
- */
-
 const RED = 31;
 const GREEN = 32;
 const BLUE = 34;

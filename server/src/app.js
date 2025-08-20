@@ -1,15 +1,14 @@
-/**
- * Configures and sets up the Express application including middleware for request handling and routing for API endpoints.
- */
-
 const express = require('express');
 const cors = require('cors');
-const middleware = require('./middleware/middleware');
+const middleware = require('./utils/middleware');
+const usersRouter = require('./controllers/users');
 
 const app = express();
 
 app.use(express.json());
 app.use(cors());
+
+app.use('/api/users', usersRouter);
 
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);
