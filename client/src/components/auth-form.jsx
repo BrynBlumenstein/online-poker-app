@@ -1,27 +1,33 @@
 import { useState } from 'react';
-// import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 
-const AuthForm = ({ onSubmit, buttonLabel }) => {
+const AuthForm = ({
+	onSubmit,
+	buttonLabel,
+	usernameHelperText,
+	passwordHelperText
+}) => {
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
-	// const navigate = useNavigate();
+	const navigate = useNavigate();
 
 	const handleSubmit = async (event) => {
 		event.preventDefault();
-		await onSubmit(username, password);
-
-		setUsername('');
-		setPassword('');
-
-		// navigate('/');
+		const response = await onSubmit(username, password);
+		if (response && !response?.error) {
+			setUsername('');
+			setPassword('');
+			navigate('/');
+		}
 	};
 
 	return (
 		<Box
 			component="form"
+			noValidate
 			onSubmit={handleSubmit}
 			sx={{
 				display: 'flex',
@@ -32,6 +38,7 @@ const AuthForm = ({ onSubmit, buttonLabel }) => {
 		>
 			<TextField
 				label="Username"
+				helperText={usernameHelperText}
 				required
 				size="small"
 				value={username}
@@ -41,7 +48,7 @@ const AuthForm = ({ onSubmit, buttonLabel }) => {
 			/>
 			<TextField
 				label="Password"
-				type="password"
+				helperText={passwordHelperText}
 				required
 				size="small"
 				value={password}

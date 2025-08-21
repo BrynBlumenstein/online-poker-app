@@ -6,8 +6,10 @@ import AuthForm from '../components/auth-form';
 import { useNavigate } from 'react-router-dom';
 
 const AuthPage = ({
-	label,
 	onSubmit,
+	label,
+	usernameHelperText,
+	passwordHelperText,
 	redirectText,
 	redirectPath,
 	redirectLabel
@@ -33,10 +35,18 @@ const AuthPage = ({
 				<Typography variant="h5" align="center" gutterBottom>
 					{label}
 				</Typography>
-				<AuthForm onSubmit={onSubmit} buttonLabel={label} />
+				<AuthForm
+					onSubmit={onSubmit}
+					buttonLabel={label}
+					usernameHelperText={usernameHelperText}
+					passwordHelperText={passwordHelperText}
+				/>
 				<Typography>
 					{redirectText}
-					<Link onClick={() => navigate(redirectPath)}>
+					<Link
+						onClick={() => navigate(redirectPath)}
+						sx={{ cursor: 'pointer' }}
+					>
 						{redirectLabel}
 					</Link>
 				</Typography>

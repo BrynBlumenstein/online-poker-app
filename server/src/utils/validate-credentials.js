@@ -18,10 +18,19 @@ const isValidPassword = (password) => {
 };
 
 const validateCredentials = (credentials) => {
-	if (!credentials || Object.keys(credentials).length === 0) return 'Credentials missing.';
-	if (!isValidUsername(credentials.username)) return `Invalid username.`;
-	if (!isValidPassword(credentials.password)) return `Invalid password.`;
+	if (!credentials || Object.keys(credentials).length === 0) {
+		return 'Credentials missing.';
+	}
+
+	if (!isValidUsername(credentials.username)) {
+		return `Invalid username.`;
+	}
+
+	if (!isValidPassword(credentials.password)) {
+		return `Invalid password.`;
+	}
+
 	return null;
-}
+};
 
 module.exports = validateCredentials;

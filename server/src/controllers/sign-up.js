@@ -13,7 +13,7 @@ signUpRouter.post('/', async (req, res) => {
 		return res.status(400).json({ error: failureMessage });
 	}
 
-	const existingUser = await User.findOne({ username: credentials.username });
+	const existingUser = await User.findOne({ where: { username: credentials.username }});
 	if (existingUser) {
 		failureMessage = 'Username already taken';
         logger.info(failureMessage);
