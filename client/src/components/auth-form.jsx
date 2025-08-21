@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
@@ -7,7 +7,7 @@ import TextField from '@mui/material/TextField';
 const AuthForm = ({ onSubmit, buttonLabel }) => {
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
-    const navigate = useNavigate();
+	// const navigate = useNavigate();
 
 	const handleSubmit = async (event) => {
 		event.preventDefault();
@@ -16,7 +16,7 @@ const AuthForm = ({ onSubmit, buttonLabel }) => {
 		setUsername('');
 		setPassword('');
 
-        navigate('/');
+		// navigate('/');
 	};
 
 	return (
@@ -34,7 +34,7 @@ const AuthForm = ({ onSubmit, buttonLabel }) => {
 				label="Username"
 				required
 				size="small"
-                value={username}
+				value={username}
 				onChange={({ target }) => {
 					setUsername(target.value);
 				}}
@@ -44,7 +44,7 @@ const AuthForm = ({ onSubmit, buttonLabel }) => {
 				type="password"
 				required
 				size="small"
-                value={password}
+				value={password}
 				onChange={({ target }) => {
 					setPassword(target.value);
 				}}

@@ -3,7 +3,7 @@ import signUpService from '../services/sign-up';
 
 const SignUpPage = () => {
 	const onSignUp = async (username, password) => {
-		await signUpService.signUp({ username, password_hash: password });
+		await signUpService.signUp({ username, password });
 	};
 
 	return (
