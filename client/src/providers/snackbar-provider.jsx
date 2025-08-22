@@ -18,10 +18,13 @@ const SnackbarProvider = ({ children }) => {
 		setSnackbar((prev) => ({ ...prev, open: false }));
 	}, []);
 
-	const contextValue = useMemo(() => ({
-		showSnackbar,
-		hideSnackbar
-	}), [showSnackbar, hideSnackbar]);
+	const contextValue = useMemo(
+		() => ({
+			showSnackbar,
+			hideSnackbar
+		}),
+		[showSnackbar, hideSnackbar]
+	);
 
 	return (
 		<SnackbarContext.Provider value={contextValue}>
@@ -29,7 +32,10 @@ const SnackbarProvider = ({ children }) => {
 				anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
 				open={snackbar.open}
 				autoHideDuration={5000}
-				onClose={hideSnackbar}
+				onClose={(event, reason) => {
+					if (reason === 'clickaway') return;
+					hideSnackbar();
+				}}
 			>
 				<Alert onClose={hideSnackbar} severity={snackbar.severity}>
 					{snackbar.message}

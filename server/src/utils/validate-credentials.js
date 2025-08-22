@@ -1,20 +1,11 @@
 const isValidUsername = (username) => {
-	const regex = /^[a-zA-Z0-9_]{3,15}$/;
-	if (!username || typeof username !== 'string' || !regex.test(username)) {
-		return false;
-	}
-
-	return true;
+	return /^[a-zA-Z0-9_]{3,15}$/.test(username);
 };
 
 const isValidPassword = (password) => {
-	const regex =
-		/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,20}$/;
-	if (!password || typeof password !== 'string' || !regex.test(password)) {
-		return false;
-	}
-
-	return true;
+	return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,20}$/.test(
+		password
+	);
 };
 
 const validateCredentials = (credentials) => {

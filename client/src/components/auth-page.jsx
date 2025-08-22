@@ -10,6 +10,8 @@ const AuthPage = ({
 	label,
 	usernameHelperText,
 	passwordHelperText,
+	usernameError,
+	passwordError,
 	redirectText,
 	redirectPath,
 	redirectLabel
@@ -40,6 +42,8 @@ const AuthPage = ({
 					buttonLabel={label}
 					usernameHelperText={usernameHelperText}
 					passwordHelperText={passwordHelperText}
+					usernameError={usernameError}
+					passwordError={passwordError}
 				/>
 				<Typography>
 					{redirectText}

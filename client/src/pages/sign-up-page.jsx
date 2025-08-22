@@ -1,56 +1,52 @@
+import { useState } from 'react';
 import AuthPage from '../components/auth-page';
-import signUpService from '../services/sign-up';
+import authService from '../services/auth';
 import useSnackbar from '../hooks/use-snackbar';
 
 const SignUpPage = () => {
 	const { showSnackbar } = useSnackbar();
+	const [usernameError, setUsernameError] = useState(false);
+	const [passwordError, setPasswordError] = useState(false);
 
 	const isValidUsername = (username) => {
-		const regex = /^[a-zA-Z0-9_]{3,15}$/;
-		if (
-			!username ||
-			typeof username !== 'string' ||
-			!regex.test(username)
-		) {
-			return false;
-		}
-
-		return true;
+		return /^[a-zA-Z0-9_]{3,15}$/.test(username);
 	};
 
 	const isValidPassword = (password) => {
-		const regex =
-			/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,20}$/;
-		if (
-			!password ||
-			typeof password !== 'string' ||
-			!regex.test(password)
-		) {
-			return false;
-		}
+		return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,20}$/.test(
+			password
+		);
+	};
 
-		return true;
+	const triggerFieldError = (setter) => {
+		setter(true);
+		setTimeout(() => {
+			setter(false);
+		}, 5000);
 	};
 
 	const onSignUp = async (username, password) => {
-		const usernameValid = isValidUsername(username);
-		const passwordValid = isValidPassword(password);
+		let valid = true;
 
-		if (!usernameValid) {
+		if (!isValidUsername(username)) {
 			showSnackbar(`${username} is an invalid username.`, 'error');
-		} else if (!passwordValid) {
+			triggerFieldError(setUsernameError);
+			valid = false;
+		} else if (!isValidPassword(password)) {
 			showSnackbar(`${password} is an invalid password.`, 'error');
+			triggerFieldError(setPasswordError);
+			valid = false;
 		}
 
-		let response = null;
+		if (!valid) {
+			return null;
+		}
 
-		if (usernameValid && passwordValid) {
-			response = await signUpService.signUp({ username, password });
-			if (!response?.error) {
-				showSnackbar(`${username} successfully signed up.`);
-			} else {
-				showSnackbar(response.error, 'error');
-			}
+		const response = await authService.signUp({ username, password });
+		if (!response?.error) {
+			showSnackbar(`${username} successfully signed up.`);
+		} else {
+			showSnackbar(response.error, 'error');
 		}
 
 		return response;
@@ -62,6 +58,8 @@ const SignUpPage = () => {
 			label="Sign up"
 			usernameHelperText="Username must be 3-15 characters long and can only contain letters, numbers, or underscores."
 			passwordHelperText="Password must be 8–20 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character (!@#$%^&*)."
+			usernameError={usernameError}
+			passwordError={passwordError}
 			redirectText="Already have an account?&nbsp;"
 			redirectPath="/sign-in"
 			redirectLabel="Sign in"
