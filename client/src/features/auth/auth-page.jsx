@@ -1,9 +1,9 @@
+import { useNavigate } from 'react-router-dom';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
-import AuthForm from '../components/auth-form';
-import { useNavigate } from 'react-router-dom';
+import AuthForm from './auth-form';
 
 const AuthPage = ({
 	onSubmit,
@@ -23,10 +23,12 @@ const AuthPage = ({
 			sx={{
 				height: '100vh',
 				display: 'flex',
+				flexDirection: 'column',
 				justifyContent: 'center',
 				alignItems: 'center'
 			}}
 		>
+			<Typography variant="h4" gutterBottom>Online Poker App</Typography>
 			<Paper
 				elevation={6}
 				sx={{

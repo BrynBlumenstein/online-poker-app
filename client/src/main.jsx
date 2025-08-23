@@ -6,8 +6,9 @@ import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
-import App from './App.jsx';
-import SnackbarProvider from './providers/snackbar-provider.jsx';
+import App from './app';
+import AuthProvider from './contexts/auth/auth-provider';
+import SnackbarProvider from './contexts/snackbar/snackbar-provider';
 
 const theme = createTheme({
 	palette: {
@@ -22,9 +23,11 @@ createRoot(document.getElementById('root')).render(
 	<StrictMode>
 		<ThemeProvider theme={theme}>
 			<CssBaseline />
-			<SnackbarProvider>
-				<App />
-			</SnackbarProvider>
+			<AuthProvider>
+				<SnackbarProvider>
+					<App />
+				</SnackbarProvider>
+			</AuthProvider>
 		</ThemeProvider>
 	</StrictMode>
 );

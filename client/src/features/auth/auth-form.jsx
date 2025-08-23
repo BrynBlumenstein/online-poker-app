@@ -7,6 +7,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import IconButton from '@mui/material/IconButton';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import Typography from '@mui/material/Typography';
 
 const AuthForm = ({
 	onSubmit,
@@ -34,7 +35,7 @@ const AuthForm = ({
 	const handleSubmit = async (event) => {
 		event.preventDefault();
 		const response = await onSubmit(username, password);
-		if (response && !response?.error) {
+		if (response) {
 			setUsername('');
 			setPassword('');
 			navigate('/');

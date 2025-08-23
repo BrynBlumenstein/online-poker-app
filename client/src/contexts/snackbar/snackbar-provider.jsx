@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
-import SnackbarContext from '../contexts/snackbar-context';
+import SnackbarContext from './snackbar-context';
 
 const SnackbarProvider = ({ children }) => {
 	const [snackbar, setSnackbar] = useState({

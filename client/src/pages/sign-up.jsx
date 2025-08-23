@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import AuthPage from '../components/auth-page';
-import authService from '../services/auth';
-import useSnackbar from '../hooks/use-snackbar';
+import AuthPage from '../features/auth/auth-page';
+import authService from '../features/auth/auth-service';
+import useSnackbar from '../contexts/snackbar/use-snackbar';
 
-const SignUpPage = () => {
+const SignUp = () => {
 	const { showSnackbar } = useSnackbar();
 	const [usernameError, setUsernameError] = useState(false);
 	const [passwordError, setPasswordError] = useState(false);
@@ -29,11 +29,11 @@ const SignUpPage = () => {
 		let valid = true;
 
 		if (!isValidUsername(username)) {
-			showSnackbar(`${username} is an invalid username.`, 'error');
+			showSnackbar(`"${username}" is an invalid username.`, 'error');
 			triggerFieldError(setUsernameError);
 			valid = false;
 		} else if (!isValidPassword(password)) {
-			showSnackbar(`${password} is an invalid password.`, 'error');
+			showSnackbar(`"${password}" is an invalid password.`, 'error');
 			triggerFieldError(setPasswordError);
 			valid = false;
 		}
@@ -43,13 +43,13 @@ const SignUpPage = () => {
 		}
 
 		const response = await authService.signUp({ username, password });
-		if (!response?.error) {
+		if (response && response.username) {
 			showSnackbar(`${username} successfully signed up.`);
+			return response;
 		} else {
 			showSnackbar(response.error, 'error');
+			return null;
 		}
-
-		return response;
 	};
 
 	return (
@@ -67,4 +67,4 @@ const SignUpPage = () => {
 	);
 };
 
-export default SignUpPage;
+export default SignUp;
