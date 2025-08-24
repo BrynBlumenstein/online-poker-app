@@ -1,27 +1,33 @@
 import axios from 'axios';
 const baseUrl = 'http://localhost:3001/api/auth';
 
-const handleError = (err, action) => {
-	console.error(
-		`${action} failed:`,
-		err.response?.status,
-		err.response?.data
-	);
-	return err.response?.data?.error;
+const throwError = (err, fallback) => {
+	const message = err.response?.data?.error || fallback;
+	throw new Error(message);
 };
 
-const postRequest = async (endpoint, data, action) => {
+const postRequest = async (endpoint, data) => {
+	const response = await axios.post(`${baseUrl}/${endpoint}`, data);
+	return response.data;
+};
+
+const signUp = async (credentials) => {
 	try {
-		const response = await axios.post(`${baseUrl}/${endpoint}`, data);
-		return response.data;
+		const data = await postRequest('sign-up', credentials);
+		return data;
 	} catch (err) {
-		return handleError(err, action);
+		throwError(err, 'Sign-up failed');
 	}
 };
 
-const signUp = (credentials) => postRequest('sign-up', credentials, 'Sign-up');
-
-const signIn = (credentials) => postRequest('sign-in', credentials, 'Sign-in');
+const signIn = async (credentials) => {
+	try {
+		const data = await postRequest('sign-in', credentials);
+		return data;
+	} catch (err) {
+		throwError(err, 'Sign-in failed');
+	}
+};
 
 const getCurrentUser = async (token) => {
 	try {
@@ -30,7 +36,7 @@ const getCurrentUser = async (token) => {
 		});
 		return response.data;
 	} catch (err) {
-		return handleError(err, 'Fetching current user');
+		throwError(err, 'Fetching current user failed');
 	}
 };
 

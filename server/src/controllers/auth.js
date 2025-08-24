@@ -8,22 +8,24 @@ const validateCredentials = require('../utils/validate-credentials');
 
 const ONE_DAY = 60 * 60 * 24;
 
+const returnError = (res, status, message) => {
+	logger.error(message);
+	return res.status(status).json({ error: message });
+};
+
 authRouter.post('/sign-up', async (req, res) => {
 	const credentials = req.body;
 
-	let failureMessage = validateCredentials(credentials);
-	if (failureMessage) {
-		logger.info(failureMessage);
-		return res.status(400).json({ error: failureMessage });
+	const validCredentials = validateCredentials(credentials);
+	if (!validCredentials) {
+		return returnError(res, 400, 'Invalid credentials');
 	}
 
 	const existingUser = await User.findOne({
 		where: { username: credentials.username }
 	});
 	if (existingUser) {
-		failureMessage = 'Username already taken';
-		logger.info(failureMessage);
-		return res.status(400).json({ error: failureMessage });
+		return returnError(res, 400, 'Username already taken');
 	}
 
 	const saltRounds = 10;
@@ -41,10 +43,9 @@ authRouter.post('/sign-up', async (req, res) => {
 authRouter.post('/sign-in', async (req, res) => {
 	const credentials = req.body;
 
-	let failureMessage = validateCredentials(credentials);
-	if (failureMessage) {
-		logger.info(failureMessage);
-		return res.status(400).json({ error: 'Invalid username or password' });
+	const validCredentials = validateCredentials(credentials);
+	if (!validCredentials) {
+		return returnError(res, 400, 'Invalid credentials');
 	}
 
 	const user = await User.findOne({
@@ -55,7 +56,7 @@ authRouter.post('/sign-in', async (req, res) => {
 		: await bcrypt.compare(credentials.password, user.password_hash);
 
 	if (!(user && passwordCorrect)) {
-		return res.status(401).json({ error: 'Invalid username or password' });
+		return returnError(res, 401, 'Invalid username or password');
 	}
 
 	const userForToken = {
@@ -74,7 +75,7 @@ authRouter.get('/me', async (req, res) => {
 	const authHeader = req.headers.authorization;
 
 	if (!authHeader || !authHeader.startsWith('Bearer ')) {
-		return res.status(401).json({ error: 'Missing or invalid token' });
+		return returnError(res, 401, 'Missing or invalid token');
 	}
 
 	const token = authHeader.split(' ')[1];
@@ -83,11 +84,13 @@ authRouter.get('/me', async (req, res) => {
 		const decoded = jwt.verify(token, config.SECRET);
 		const user = await User.findOne({ where: { id: decoded.id } });
 
-		if (!user) return res.status(404).json({ error: 'User not found' });
+		if (!user) {
+			return returnError(res, 404, 'User not found');
+		}
 
-		res.json({ username: user.username, id: user.id });
+		res.status(200).json({ username: user.username, id: user.id });
 	} catch (err) {
-		return res.status(401).json({ error: 'Invalid token' });
+		returnError(res, 401, 'Invalid token');
 	}
 });
 

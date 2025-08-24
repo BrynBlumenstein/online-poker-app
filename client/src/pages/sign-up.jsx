@@ -2,21 +2,15 @@ import { useState } from 'react';
 import AuthPage from '../features/auth/auth-page';
 import authService from '../features/auth/auth-service';
 import useSnackbar from '../contexts/snackbar/use-snackbar';
+import {
+	isValidUsername,
+	isValidPassword
+} from '../contexts/auth/auth-utils';
 
 const SignUp = () => {
 	const { showSnackbar } = useSnackbar();
 	const [usernameError, setUsernameError] = useState(false);
 	const [passwordError, setPasswordError] = useState(false);
-
-	const isValidUsername = (username) => {
-		return /^[a-zA-Z0-9_]{3,15}$/.test(username);
-	};
-
-	const isValidPassword = (password) => {
-		return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,20}$/.test(
-			password
-		);
-	};
 
 	const triggerFieldError = (setter) => {
 		setter(true);
@@ -26,29 +20,25 @@ const SignUp = () => {
 	};
 
 	const onSignUp = async (username, password) => {
-		let valid = true;
-
 		if (!isValidUsername(username)) {
-			showSnackbar(`"${username}" is an invalid username.`, 'error');
+			showSnackbar(`"${username}" is an invalid username`, 'error');
 			triggerFieldError(setUsernameError);
-			valid = false;
-		} else if (!isValidPassword(password)) {
-			showSnackbar(`"${password}" is an invalid password.`, 'error');
+			return false;
+		}
+
+		if (!isValidPassword(password)) {
+			showSnackbar(`"${password}" is an invalid password`, 'error');
 			triggerFieldError(setPasswordError);
-			valid = false;
+			return false;
 		}
 
-		if (!valid) {
-			return null;
-		}
-
-		const response = await authService.signUp({ username, password });
-		if (response && response.username) {
-			showSnackbar(`${username} successfully signed up.`);
-			return response;
-		} else {
-			showSnackbar(response.error, 'error');
-			return null;
+		try {
+			const user = await authService.signUp({ username, password });
+			showSnackbar(`${user.username} signed up`);
+			return true;
+		} catch (err) {
+			showSnackbar(err.message, 'error');
+			return false;
 		}
 	};
 

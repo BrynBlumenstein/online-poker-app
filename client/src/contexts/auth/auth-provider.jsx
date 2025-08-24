@@ -11,11 +11,7 @@ const AuthProvider = ({ children }) => {
 		if (token) {
 			try {
 				const userData = await authService.getCurrentUser(token);
-				if (userData && userData.username) {
-					setUser(userData);
-				} else {
-					localStorage.removeItem('token');
-				}
+				setUser(userData);
 			} catch (err) {
 				console.error('Invalid token', err);
 				localStorage.removeItem('token');
