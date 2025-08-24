@@ -13,8 +13,6 @@ const AuthForm = ({
 	buttonLabel,
 	usernameHelperText,
 	passwordHelperText,
-	usernameError,
-	passwordError
 }) => {
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
@@ -62,7 +60,6 @@ const AuthForm = ({
 				onChange={({ target }) => {
 					setUsername(target.value);
 				}}
-				error={usernameError}
 			/>
 			<TextField
 				label="Password"
@@ -94,7 +91,6 @@ const AuthForm = ({
 				onChange={({ target }) => {
 					setPassword(target.value);
 				}}
-				error={passwordError}
 			/>
 			<Button type="submit" variant="contained">
 				{buttonLabel}

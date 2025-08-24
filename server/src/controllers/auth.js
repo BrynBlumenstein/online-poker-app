@@ -18,7 +18,7 @@ authRouter.post('/sign-up', async (req, res) => {
 
 	const validCredentials = validateCredentials(credentials);
 	if (!validCredentials) {
-		return returnError(res, 400, 'Invalid credentials');
+		return returnError(res, 400, 'Invalid username or password');
 	}
 
 	const existingUser = await User.findOne({
@@ -45,7 +45,7 @@ authRouter.post('/sign-in', async (req, res) => {
 
 	const validCredentials = validateCredentials(credentials);
 	if (!validCredentials) {
-		return returnError(res, 400, 'Invalid credentials');
+		return returnError(res, 400, 'Invalid username or password');
 	}
 
 	const user = await User.findOne({

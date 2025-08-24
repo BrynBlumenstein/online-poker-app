@@ -6,21 +6,21 @@ const AuthProvider = ({ children }) => {
 	const [user, setUser] = useState(null);
 	const [fetchingUser, setFetchingUser] = useState(true);
 
-	const fetchUser = async () => {
-		const token = localStorage.getItem('token');
-		if (token) {
-			try {
-				const userData = await authService.getCurrentUser(token);
-				setUser(userData);
-			} catch (err) {
-				console.error('Invalid token', err);
-				localStorage.removeItem('token');
-			}
-		}
-		setFetchingUser(false);
-	};
-
 	useEffect(() => {
+		const fetchUser = async () => {
+			const token = localStorage.getItem('token');
+			if (token) {
+				try {
+					const userData = await authService.getCurrentUser(token);
+					setUser(userData);
+				} catch (err) {
+					console.error(err);
+					signOut();
+				}
+			}
+			setFetchingUser(false);
+		};
+
 		fetchUser();
 	}, []);
 
