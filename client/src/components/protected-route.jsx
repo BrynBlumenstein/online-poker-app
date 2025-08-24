@@ -3,9 +3,10 @@ import useAuth from '../contexts/auth/use-auth';
 
 const ProtectedRoute = ({ children }) => {
 	const { user, fetchingUser } = useAuth();
-	if (fetchingUser) return <></>;
-	if (!user) return <Navigate to="/sign-in" replace />;
-	return children;
+	if (fetchingUser) {
+		return null;
+	}
+	return user ? children : <Navigate to="/sign-in" replace />;
 };
 
 export default ProtectedRoute;

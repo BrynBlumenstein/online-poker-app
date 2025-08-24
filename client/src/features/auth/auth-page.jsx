@@ -3,6 +3,7 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
+import Logo from '../../components/logo';
 import AuthForm from './auth-form';
 
 const AuthPage = ({
@@ -28,7 +29,9 @@ const AuthPage = ({
 				alignItems: 'center'
 			}}
 		>
-			<Typography variant="h4" gutterBottom>Online Poker App</Typography>
+			<Box sx={{ marginBottom: 2 }}>
+				<Logo />
+			</Box>
 			<Paper
 				elevation={6}
 				sx={{
