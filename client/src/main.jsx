@@ -16,6 +16,15 @@ const theme = createTheme({
 		primary: {
 			main: '#a5d6a7'
 		}
+	},
+	components: {
+		MuiCssBaseline: {
+			styleOverrides: {
+				html: {
+					overflowY: 'scroll'
+				}
+			}
+		}
 	}
 });
 

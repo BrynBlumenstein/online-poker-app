@@ -3,7 +3,6 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
-import Logo from '../../components/logo';
 import AuthForm from './auth-form';
 
 const AuthPage = ({
@@ -20,16 +19,12 @@ const AuthPage = ({
 	return (
 		<Box
 			sx={{
-				height: '100vh',
 				display: 'flex',
-				flexDirection: 'column',
 				justifyContent: 'center',
-				alignItems: 'center'
+				alignItems: 'center',
+				margin: 8
 			}}
 		>
-			<Box sx={{ marginBottom: 2 }}>
-				<Logo />
-			</Box>
 			<Paper
 				elevation={6}
 				sx={{

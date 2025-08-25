@@ -11,7 +11,7 @@ const SnackbarProvider = ({ children }) => {
 	});
 
 	const showSnackbar = useCallback((message, severity = 'success') => {
-		setSnackbar({ open: true, message, severity });
+		setSnackbar({ open: true, message, severity, key: Date.now() });
 	}, []);
 
 	const hideSnackbar = useCallback(() => {
@@ -29,7 +29,8 @@ const SnackbarProvider = ({ children }) => {
 	return (
 		<SnackbarContext.Provider value={contextValue}>
 			<Snackbar
-				anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+			key={snackbar.key}
+				anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
 				open={snackbar.open}
 				autoHideDuration={5000}
 				onClose={(event, reason) => {

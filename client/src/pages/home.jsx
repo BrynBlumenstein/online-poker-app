@@ -1,29 +1,24 @@
-import { useNavigate } from 'react-router-dom';
-import IconButton from '@mui/material/IconButton';
-import LogoutIcon from '@mui/icons-material/Logout';
-import Logo from '../components/logo';
-import useAuth from '../contexts/auth/use-auth';
-import useSnackbar from '../contexts/snackbar/use-snackbar';
+import Stack from '@mui/material/Stack';
+import TileRow from '../components/tile-row';
+import Host from '../features/home/host';
+import Join from '../features/home/join';
+import Funds from '../features/home/funds';
+import Account from '../features/home/account';
+import Friends from '../features/home/friends';
 
 const Home = () => {
-	const { user, signOut } = useAuth();
-	const { showSnackbar } = useSnackbar();
-	const navigate = useNavigate();
-
-	const handleSignOut = () => {
-		signOut();
-		showSnackbar('Sign-out successful', 'success');
-		navigate('/sign-in', { replace: true });
-	};
-
 	return (
-		<>
-			<Logo />
-			<IconButton onClick={handleSignOut}>
-				<LogoutIcon />
-			</IconButton>
-			<h1>Hello, {user.username}</h1>
-		</>
+		<Stack spacing={4} sx={{ margin: 8 }}>
+			<TileRow>
+				<Host />
+				<Join />
+				<Funds />
+			</TileRow>
+			<TileRow>
+				<Account />
+				<Friends />
+			</TileRow>
+		</Stack>
 	);
 };
 
