@@ -1,5 +1,5 @@
 import Stack from '@mui/material/Stack';
-import TileRow from '../components/tile-row';
+import TileRow from '../features/home/tile-row';
 import Host from '../features/home/host';
 import Join from '../features/home/join';
 import Funds from '../features/home/funds';

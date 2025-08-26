@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import AuthContext from './auth-context';
-import authService from '../../features/auth/auth-service';
+import authService from '../../services/auth-service';
 
 const AuthProvider = ({ children }) => {
 	const [user, setUser] = useState(null);
@@ -34,8 +34,14 @@ const AuthProvider = ({ children }) => {
 		localStorage.removeItem('token');
 	};
 
+	const updateUser = (updates) => {
+		setUser((prev) => ({ ...prev, ...updates }));
+	};
+
 	return (
-		<AuthContext.Provider value={{ user, fetchingUser, signIn, signOut }}>
+		<AuthContext.Provider
+			value={{ user, fetchingUser, signIn, signOut, updateUser }}
+		>
 			{children}
 		</AuthContext.Provider>
 	);

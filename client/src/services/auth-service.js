@@ -1,10 +1,6 @@
 import axios from 'axios';
+import { throwError } from './services-utils';
 const baseUrl = 'http://localhost:3001/api/auth';
-
-const throwError = (err, fallback) => {
-	const message = err.response?.data?.error || fallback;
-	throw new Error(message);
-};
 
 const postRequest = async (endpoint, data) => {
 	const response = await axios.post(`${baseUrl}/${endpoint}`, data);

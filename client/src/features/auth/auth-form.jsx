@@ -12,7 +12,7 @@ const AuthForm = ({
 	onSubmit,
 	buttonLabel,
 	usernameHelperText,
-	passwordHelperText,
+	passwordHelperText
 }) => {
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
@@ -43,6 +43,7 @@ const AuthForm = ({
 		<Box
 			component="form"
 			noValidate
+			autoComplete="off"
 			onSubmit={handleSubmit}
 			sx={{
 				display: 'flex',
@@ -59,6 +60,11 @@ const AuthForm = ({
 				value={username}
 				onChange={({ target }) => {
 					setUsername(target.value);
+				}}
+				slotProps={{
+					inputLabel: {
+						shrink: true
+					}
 				}}
 			/>
 			<TextField
@@ -84,6 +90,9 @@ const AuthForm = ({
 								</IconButton>
 							</InputAdornment>
 						)
+					},
+					inputLabel: {
+						shrink: true
 					}
 				}}
 				size="small"

@@ -1,4 +1,4 @@
-import HomeTile from '../../components/home-tile';
+import HomeTile from './home-tile';
 import TravelExploreIcon from '@mui/icons-material/TravelExplore';
 
 const Join = () => {

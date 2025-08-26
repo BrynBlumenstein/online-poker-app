@@ -17,6 +17,12 @@ const User = sequelize.define(
 		password_hash: {
 			type: DataTypes.STRING,
 			allowNull: false
+		},
+		balance: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			defaultValue: 0,
+			validate: { min: 0 }
 		}
 	},
 	{

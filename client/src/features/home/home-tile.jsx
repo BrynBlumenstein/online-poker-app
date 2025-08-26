@@ -4,10 +4,6 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 
 const HomeTile = ({ level, icon, label, onTileClick }) => {
-	const handleTileClick = () => {
-		onTileClick();
-	};
-
 	return (
 		<Paper
 			elevation={6}
@@ -17,7 +13,7 @@ const HomeTile = ({ level, icon, label, onTileClick }) => {
 			}}
 		>
 			<Button
-				onClick={handleTileClick}
+				onClick={onTileClick}
 				sx={{ width: '100%', height: '100%' }}
 			>
 				<Stack alignItems="center" spacing={1}>

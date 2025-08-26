@@ -1,4 +1,4 @@
-import HomeTile from '../../components/home-tile';
+import HomeTile from './home-tile';
 import TableBarIcon from '@mui/icons-material/TableBar';
 
 const Host = () => {

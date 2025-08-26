@@ -1,4 +1,4 @@
-import HomeTile from '../../components/home-tile';
+import HomeTile from './home-tile';
 import PersonIcon from '@mui/icons-material/Person';
 
 const Account = () => {

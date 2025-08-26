@@ -1,5 +1,5 @@
 import AuthPage from '../features/auth/auth-page';
-import authService from '../features/auth/auth-service';
+import authService from '../services/auth-service';
 import useSnackbar from '../contexts/snackbar/use-snackbar';
 import {
 	isValidUsername,

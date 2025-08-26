@@ -24,6 +24,11 @@ const theme = createTheme({
 					overflowY: 'scroll'
 				}
 			}
+		},
+		MuiDialog: {
+			defaultProps: {
+				disableScrollLock: true
+			}
 		}
 	}
 });
