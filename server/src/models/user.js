@@ -23,6 +23,17 @@ const User = sequelize.define(
 			allowNull: false,
 			defaultValue: 0,
 			validate: { min: 0 }
+		},
+		earnings: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			defaultValue: 0,
+		},
+		hands_won: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			defaultValue: 0,
+			validate: { min: 0 }
 		}
 	},
 	{

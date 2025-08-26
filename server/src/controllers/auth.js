@@ -31,8 +31,8 @@ authRouter.post('/sign-up', async (req, res) => {
 		password_hash: hashedPassword
 	});
 
-	const { password_hash, ...userWithoutPassword } = user.toJSON();
-	res.status(201).json(userWithoutPassword);
+	const { password_hash, balance, earnings, hands_won, ...userData } = user.toJSON();
+	res.status(201).json(userData);
 });
 
 authRouter.post('/sign-in', async (req, res) => {
@@ -62,7 +62,8 @@ authRouter.post('/sign-in', async (req, res) => {
 		expiresIn: ONE_DAY
 	});
 
-	res.status(200).json({ token, id: user.id, username: user.username, balance: user.balance });
+	const {password_hash, ...userData} = user.toJSON();
+	res.status(200).json({ token, userData });
 });
 
 authRouter.get('/me', async (req, res) => {
@@ -76,11 +77,8 @@ authRouter.get('/me', async (req, res) => {
 		return returnError(res, 404, 'User not found');
 	}
 
-	res.status(200).json({
-		id: user.id,
-		username: user.username,
-		balance: user.balance
-	});
+	const {password_hash, ...userData} = user.toJSON();
+	res.status(200).json(userData);
 });
 
 module.exports = authRouter;
