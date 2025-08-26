@@ -9,8 +9,7 @@ const postRequest = async (endpoint, data) => {
 
 const signUp = async (credentials) => {
 	try {
-		const data = await postRequest('sign-up', credentials);
-		return data;
+		return await postRequest('sign-up', credentials);
 	} catch (err) {
 		throwError(err, 'Sign-up failed');
 	}
@@ -18,8 +17,7 @@ const signUp = async (credentials) => {
 
 const signIn = async (credentials) => {
 	try {
-		const data = await postRequest('sign-in', credentials);
-		return data;
+		return await postRequest('sign-in', credentials);
 	} catch (err) {
 		throwError(err, 'Sign-in failed');
 	}

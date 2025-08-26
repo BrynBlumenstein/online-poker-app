@@ -116,7 +116,7 @@ const Funds = () => {
 				level="top"
 				icon={<AccountBalanceWalletIcon fontSize="large" />}
 				label="Manage Funds"
-				onTileClick={(event) => handleFundsClick(event)}
+				onTileClick={handleFundsClick}
 			/>
 			<Dialog
 				open={open}
@@ -154,7 +154,7 @@ const Funds = () => {
 							type="text"
 							required
 							value={amount}
-							onChange={(event) => handleAmountChange(event)}
+							onChange={handleAmountChange}
 							helperText={helperText}
 							slotProps={{
 								input: {
@@ -179,8 +179,8 @@ const Funds = () => {
 						</DialogContentText>
 					</Stack>
 					<DialogActions>
-						<Button onClick={() => handleClose()}>Cancel</Button>
 						<Button type="submit">Confirm</Button>
+						<Button onClick={() => handleClose()}>Cancel</Button>
 					</DialogActions>
 				</DialogContent>
 			</Dialog>
