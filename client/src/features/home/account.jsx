@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import HomeTile from './home-tile';
 import PersonIcon from '@mui/icons-material/Person';
-import Dialog from '@mui/material/Dialog';
 import useAuth from '../../contexts/auth/use-auth';
 import useSnackbar from '../../contexts/snackbar/use-snackbar';
 import usersService from '../../services/users-service';
-import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
 import EditIcon from '@mui/icons-material/Edit';
 import EditOffIcon from '@mui/icons-material/EditOff';
@@ -13,9 +11,9 @@ import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import Button from '@mui/material/Button';
 import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import Stack from '@mui/material/Stack';
+import HomeDialog from './home-dialog';
 
 const Account = () => {
 	const { user, updateUser } = useAuth();
@@ -84,86 +82,73 @@ const Account = () => {
 				label="Account"
 				onTileClick={handleAccountClick}
 			/>
-			<Dialog
+			<HomeDialog
 				open={open}
-				fullWidth
-				maxWidth="xs"
-				onClose={() => handleClose()}
-				slotProps={{
-					paper: {
-						component: 'form',
-						onSubmit: (event) => handleSubmit(event),
-						noValidate: true,
-						autoComplete: 'off'
-					}
-				}}
+				handleClose={handleClose}
+				handleSubmit={handleSubmit}
+				title="Account"
 			>
-				<DialogTitle>Account</DialogTitle>
-				<DialogContent dividers>
-					<Stack spacing={3}>
-						<Stack spacing={1}>
-							<DialogContentText>
-								Current Balance: ${user.balance}
-							</DialogContentText>
-							<DialogContentText>
-								Lifetime Earnings: ${user.earnings}
-							</DialogContentText>
-							<DialogContentText>
-								Hands Won: {user.hands_won}
-							</DialogContentText>
-						</Stack>
-						<TextField
-							fullWidth
-							label="Username"
-							variant="standard"
-							type="text"
-							value={newUsername}
-							onChange={handleUsernameChange}
-							helperText={
-								editing
-									? 'Username must be 3-15 characters long and can only contain letters, numbers, or underscores.'
-									: ' '
-							}
-							disabled={!editing}
-							slotProps={{
-								formHelperText: { sx: { minHeight: '3rem' } },
-								input: {
-									endAdornment: (
-										<InputAdornment position="end">
-											<IconButton
-												onClick={handleClickEditing}
-												onMouseDown={
-													handleMouseDownEditing
-												}
-												onMouseUp={handleMouseUpEditing}
-												edge="end"
-											>
-												{editing ? (
-													<EditOffIcon />
-												) : (
-													<EditIcon />
-												)}
-											</IconButton>
-										</InputAdornment>
-									)
-								},
-								inputLabel: {
-									shrink: true
-								}
-							}}
-						/>
+				<Stack spacing={3}>
+					<Stack spacing={1}>
+						<DialogContentText>
+							Current Balance: ${user.balance}
+						</DialogContentText>
+						<DialogContentText>
+							Lifetime Earnings: ${user.earnings}
+						</DialogContentText>
+						<DialogContentText>
+							Hands Won: {user.hands_won}
+						</DialogContentText>
 					</Stack>
-					<DialogActions>
-						<Button
-							type="submit"
-							sx={{ visibility: editing ? 'visible' : 'hidden' }}
-						>
-							Save
-						</Button>
-						<Button onClick={() => handleClose()}>Close</Button>
-					</DialogActions>
-				</DialogContent>
-			</Dialog>
+					<TextField
+						fullWidth
+						label="Username"
+						variant="standard"
+						type="text"
+						value={newUsername}
+						onChange={handleUsernameChange}
+						helperText={
+							editing
+								? 'Username must be 3-15 characters long and can only contain letters, numbers, or underscores.'
+								: ' '
+						}
+						disabled={!editing}
+						slotProps={{
+							formHelperText: { sx: { minHeight: '3rem' } },
+							input: {
+								endAdornment: (
+									<InputAdornment position="end">
+										<IconButton
+											onClick={handleClickEditing}
+											onMouseDown={handleMouseDownEditing}
+											onMouseUp={handleMouseUpEditing}
+											edge="end"
+										>
+											{editing ? (
+												<EditOffIcon />
+											) : (
+												<EditIcon />
+											)}
+										</IconButton>
+									</InputAdornment>
+								)
+							},
+							inputLabel: {
+								shrink: true
+							}
+						}}
+					/>
+				</Stack>
+				<DialogActions>
+					<Button
+						type="submit"
+						sx={{ visibility: editing ? 'visible' : 'hidden' }}
+					>
+						Save
+					</Button>
+					<Button onClick={() => handleClose()}>Close</Button>
+				</DialogActions>
+			</HomeDialog>
 		</>
 	);
 };

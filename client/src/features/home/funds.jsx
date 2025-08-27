@@ -1,8 +1,5 @@
 import { useState } from 'react';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
@@ -15,6 +12,7 @@ import HomeTile from './home-tile';
 import useAuth from '../../contexts/auth/use-auth';
 import useSnackbar from '../../contexts/snackbar/use-snackbar';
 import usersService from '../../services/users-service';
+import HomeDialog from './home-dialog';
 
 const Funds = () => {
 	const { user, updateUser } = useAuth();
@@ -118,72 +116,59 @@ const Funds = () => {
 				label="Manage Funds"
 				onTileClick={handleFundsClick}
 			/>
-			<Dialog
+			<HomeDialog
 				open={open}
-				fullWidth
-				maxWidth="xs"
-				onClose={() => handleClose()}
-				slotProps={{
-					paper: {
-						component: 'form',
-						onSubmit: (event) => handleSubmit(event),
-						noValidate: true,
-						autoComplete: 'off'
-					}
-				}}
+				handleClose={handleClose}
+				handleSubmit={handleSubmit}
+				title="Manage Funds"
 			>
-				<DialogTitle>Manage Funds</DialogTitle>
-				<DialogContent dividers>
-					<Stack spacing={2}>
-						<ToggleButtonGroup
-							color="primary"
-							value={selection}
-							exclusive
-							onChange={(event, value) =>
-								handleSelectionChange(value)
-							}
-						>
-							<ToggleButton value="deposit">Deposit</ToggleButton>
-							<ToggleButton value="withdraw">
-								Withdraw
-							</ToggleButton>
-						</ToggleButtonGroup>
-						<TextField
-							label="Amount"
-							variant="standard"
-							type="text"
-							required
-							value={amount}
-							onChange={handleAmountChange}
-							helperText={helperText}
-							slotProps={{
-								input: {
-									startAdornment: (
-										<InputAdornment position="start">
-											$
-										</InputAdornment>
-									),
-									inputProps: {
-										min: 1,
-										max:
-											selection === 'deposit'
-												? 100
-												: user.balance,
-										step: 1
-									}
+				<Stack spacing={2}>
+					<ToggleButtonGroup
+						color="primary"
+						value={selection}
+						exclusive
+						onChange={(event, value) =>
+							handleSelectionChange(value)
+						}
+					>
+						<ToggleButton value="deposit">Deposit</ToggleButton>
+						<ToggleButton value="withdraw">Withdraw</ToggleButton>
+					</ToggleButtonGroup>
+					<TextField
+						label="Amount"
+						variant="standard"
+						type="text"
+						required
+						value={amount}
+						onChange={handleAmountChange}
+						helperText={helperText}
+						slotProps={{
+							input: {
+								startAdornment: (
+									<InputAdornment position="start">
+										$
+									</InputAdornment>
+								),
+								inputProps: {
+									min: 1,
+									max:
+										selection === 'deposit'
+											? 100
+											: user.balance,
+									step: 1
 								}
-							}}
-						/>
-						<DialogContentText>
-							Balance after transaction: ${balanceAfter}
-						</DialogContentText>
-					</Stack>
-					<DialogActions>
-						<Button type="submit">Confirm</Button>
-						<Button onClick={() => handleClose()}>Cancel</Button>
-					</DialogActions>
-				</DialogContent>
-			</Dialog>
+							}
+						}}
+					/>
+					<DialogContentText>
+						Balance after transaction: ${balanceAfter}
+					</DialogContentText>
+				</Stack>
+				<DialogActions>
+					<Button type="submit">Confirm</Button>
+					<Button onClick={() => handleClose()}>Cancel</Button>
+				</DialogActions>
+			</HomeDialog>
 		</>
 	);
 };
