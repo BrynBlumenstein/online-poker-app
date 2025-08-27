@@ -133,7 +133,7 @@ const Funds = () => {
 				}}
 			>
 				<DialogTitle>Manage Funds</DialogTitle>
-				<DialogContent>
+				<DialogContent dividers>
 					<Stack spacing={2}>
 						<ToggleButtonGroup
 							color="primary"

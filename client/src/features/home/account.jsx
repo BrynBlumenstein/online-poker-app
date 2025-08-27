@@ -99,9 +99,12 @@ const Account = () => {
 				}}
 			>
 				<DialogTitle>Account</DialogTitle>
-				<DialogContent>
-					<Stack spacing={2}>
+				<DialogContent dividers>
+					<Stack spacing={3}>
 						<Stack spacing={1}>
+							<DialogContentText>
+								Current Balance: ${user.balance}
+							</DialogContentText>
 							<DialogContentText>
 								Lifetime Earnings: ${user.earnings}
 							</DialogContentText>
