@@ -65,10 +65,25 @@ const isValidFollowingUpdate = (obj) => {
 	return isValidId(obj.following_id);
 }
 
+const isValidTableId = (id) => {
+	if (typeof id !== 'string') {
+		return false;
+	}
+	return /^[A-Z0-9]{6}$/i.test(id);
+}
+
+const isValidTableRequest = (obj) => {
+	if (!hasExactKeys(obj, ['tableId'])) {
+		return false;
+	}
+	return isValidTableId(obj.tableId);
+}
+
 module.exports = {
 	isValidId,
 	isValidCredentials,
 	isValidBalanceUpdate,
 	isValidUsernameUpdate,
-	isValidFollowingUpdate
+	isValidFollowingUpdate,
+	isValidTableRequest
 };
