@@ -19,7 +19,7 @@ const SignIn = () => {
 
 		try {
 			const user = await authService.signIn({ username, password });
-			const { token, ...userData } = user;
+			const { token, userData } = user;
 			signIn(token, userData);
 			showSnackbar(`Signed in as ${username}`);
 			return true;

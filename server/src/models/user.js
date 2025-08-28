@@ -24,10 +24,10 @@ const User = sequelize.define(
 			defaultValue: 0,
 			validate: { min: 0 }
 		},
-		earnings: {
+		winnings: {
 			type: DataTypes.INTEGER,
 			allowNull: false,
-			defaultValue: 0,
+			defaultValue: 0
 		},
 		hands_won: {
 			type: DataTypes.INTEGER,
@@ -43,6 +43,5 @@ const User = sequelize.define(
 	}
 );
 
-User.sync();
 
 module.exports = User;

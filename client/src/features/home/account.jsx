@@ -94,7 +94,7 @@ const Account = () => {
 							Current Balance: ${user.balance}
 						</DialogContentText>
 						<DialogContentText>
-							Lifetime Earnings: ${user.earnings}
+							Lifetime Winnings: ${user.winnings}
 						</DialogContentText>
 						<DialogContentText>
 							Hands Won: {user.hands_won}

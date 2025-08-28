@@ -4,7 +4,7 @@ import Host from '../features/home/host';
 import Join from '../features/home/join';
 import Funds from '../features/home/funds';
 import Account from '../features/home/account';
-import Friends from '../features/home/friends';
+import Users from '../features/home/users';
 
 const Home = () => {
 	return (
@@ -16,7 +16,7 @@ const Home = () => {
 			</TileRow>
 			<TileRow>
 				<Account />
-				<Friends />
+				<Users />
 			</TileRow>
 		</Stack>
 	);

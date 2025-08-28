@@ -25,4 +25,61 @@ const updateUsername = async (newUsername, token) => {
 	}
 };
 
-export default { updateBalance, updateUsername };
+const getAllUsers = async () => {
+	try {
+		const response = await axios.get(`${baseUrl}`);
+		return response.data;
+	} catch (err) {
+		throwError(err, 'Failed to get all users');
+	}
+};
+
+const getFollowing = async (token) => {
+	try {
+		const response = await axios.get(`${baseUrl}/following`, {
+			headers: { Authorization: `Bearer ${token}` }
+		});
+		return response.data;
+	} catch (err) {
+		throwError(err, 'Failed to get followers');
+	}
+};
+
+const followUser = async (followingId, token) => {
+	try {
+		const response = await axios.post(
+			`${baseUrl}/following`,
+			{ following_id: followingId },
+			{
+				headers: { Authorization: `Bearer ${token}` }
+			}
+		);
+		return response.data;
+	} catch (err) {
+		throwError(err, 'Failed to follow user');
+	}
+};
+
+const unfollowUser = async (followingId, token) => {
+	try {
+		const response = await axios.delete(
+			`${baseUrl}/following`,
+			{
+				data: { following_id: followingId },
+				headers: { Authorization: `Bearer ${token}` }
+			}
+		);
+		return response.data;
+	} catch (err) {
+		throwError(err, 'Failed to unfollow user');
+	}
+};
+
+export default {
+	updateBalance,
+	updateUsername,
+	getAllUsers,
+	getFollowing,
+	followUser,
+	unfollowUser
+};

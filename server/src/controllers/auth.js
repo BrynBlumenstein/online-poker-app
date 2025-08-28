@@ -1,7 +1,7 @@
 const authRouter = require('express').Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const User = require('../models/user');
+const { User } = require('../models/index');
 const config = require('../utils/config');
 const { isValidCredentials } = require('../utils/validation-utils');
 const returnError = require('../utils/return-error');
@@ -31,7 +31,8 @@ authRouter.post('/sign-up', async (req, res) => {
 		password_hash: hashedPassword
 	});
 
-	const { password_hash, balance, earnings, hands_won, ...userData } = user.toJSON();
+	const { password_hash, balance, winnings, hands_won, ...userData } =
+		user.toJSON();
 	res.status(201).json(userData);
 });
 
@@ -62,7 +63,7 @@ authRouter.post('/sign-in', async (req, res) => {
 		expiresIn: ONE_DAY
 	});
 
-	const {password_hash, ...userData} = user.toJSON();
+	const { password_hash, ...userData } = user.toJSON();
 	res.status(200).json({ token, userData });
 });
 
@@ -77,7 +78,7 @@ authRouter.get('/me', async (req, res) => {
 		return returnError(res, 404, 'User not found');
 	}
 
-	const {password_hash, ...userData} = user.toJSON();
+	const { password_hash, ...userData } = user.toJSON();
 	res.status(200).json(userData);
 });
 

@@ -1,26 +1,12 @@
-const User = require('../models/user');
+const { User, Follow } = require('../models/index');
 const returnError = require('../utils/return-error');
 const {
 	isValidBalanceUpdate,
-	isValidUsernameUpdate
+	isValidUsernameUpdate,
+	isValidFollowingUpdate
 } = require('../utils/validation-utils');
 const getIdFromToken = require('../utils/get-id-from-token');
 const usersRouter = require('express').Router();
-
-usersRouter.get('/', async (req, res) => {
-	const users = await User.findAll();
-
-	if (!users) {
-		return returnError(res, 404, 'Failed to fetch users');
-	}
-
-	const returnedUsers = users.map((user) => {
-		const { password_hash, ...userData } = user.toJSON();
-		return userData;
-	});
-
-	res.status(200).json(returnedUsers);
-});
 
 usersRouter.patch('/balance', async (req, res) => {
 	const id = getIdFromToken(req, res);
@@ -29,7 +15,7 @@ usersRouter.patch('/balance', async (req, res) => {
 	}
 
 	if (!isValidBalanceUpdate(req.body)) {
-		return returnError(res, 404, 'Invalid request body');
+		return returnError(res, 400, 'Invalid request body');
 	}
 
 	const balance = req.body.balance;
@@ -56,7 +42,7 @@ usersRouter.patch('/username', async (req, res) => {
 	}
 
 	if (!isValidUsernameUpdate(req.body)) {
-		return returnError(res, 404, 'Invalid request body');
+		return returnError(res, 400, 'Invalid request body');
 	}
 
 	const username = req.body.username;
@@ -80,6 +66,94 @@ usersRouter.patch('/username', async (req, res) => {
 		return res.status(200).json(userData);
 	} catch (err) {
 		returnError(res, 500, 'Failed to update username');
+	}
+});
+
+usersRouter.get('/', async (req, res) => {
+	const users = await User.findAll();
+
+	if (!users) {
+		return returnError(res, 404, 'Failed to fetch users');
+	}
+
+	const returnedUsers = users.map((user) => {
+		const { password_hash, ...userData } = user.toJSON();
+		return userData;
+	});
+
+	res.status(200).json(returnedUsers);
+});
+
+usersRouter.get('/following', async (req, res) => {
+	const id = getIdFromToken(req, res);
+	if (!id) {
+		return;
+	}
+
+	const user = await User.findByPk(id);
+	if (!user) {
+		return returnError(res, 404, 'User not found');
+	}
+
+	const following = await user.getFollowing();
+
+	res.status(200).json(following);
+});
+
+usersRouter.post('/following', async (req, res) => {
+	const id = getIdFromToken(req, res);
+	if (!id) {
+		return;
+	}
+
+	if (!isValidFollowingUpdate(req.body)) {
+		return returnError(res, 400, 'Invalid request body');
+	}
+
+	const follower = await User.findByPk(id);
+	const following = await User.findByPk(req.body.following_id);
+	if (!follower || !following) {
+		return returnError(res, 404, 'User not found');
+	}
+
+	try {
+		await follower.addFollowing(following);
+
+		res.status(201).json(following);
+	} catch (err) {
+		if (err.name === 'SequelizeUniqueConstraintError') {
+			return returnError(res, 409, 'Already following this user');
+		}
+		return returnError(res, 500, 'Failed to follow user');
+	}
+});
+
+usersRouter.delete('/following', async (req, res) => {
+	const id = getIdFromToken(req, res);
+	if (!id) {
+		return;
+	}
+
+	if (!isValidFollowingUpdate(req.body)) {
+		return returnError(res, 400, 'Invalid request body');
+	}
+
+	const follower = await User.findByPk(id);
+	const following = await User.findByPk(req.body.following_id);
+	if (!follower || !following) {
+		return returnError(res, 404, 'User not found');
+	}
+
+	try {
+		const unfollowed = await follower.removeFollowing(following);
+
+		if (unfollowed === 0) {
+			return returnError(res, 400, 'You are not following this user');
+		}
+		
+		res.status(200).json({ message: 'Unfollow successful' });
+	} catch (err) {
+		return returnError(res, 500, 'Failed to unfollow user');
 	}
 });
 

@@ -122,7 +122,7 @@ const Funds = () => {
 				handleSubmit={handleSubmit}
 				title="Manage Funds"
 			>
-				<Stack spacing={2}>
+				<Stack spacing={3}>
 					<ToggleButtonGroup
 						color="primary"
 						value={selection}

@@ -44,23 +44,31 @@ const isValidCredentials = (credentials) => {
 	);
 };
 
-function isValidBalanceUpdate(obj) {
+const isValidBalanceUpdate = (obj) => {
 	if (!hasExactKeys(obj, ['balance'])) {
 		return false;
 	}
 	return Number.isInteger(obj.balance) && obj.balance >= 0;
 }
 
-function isValidUsernameUpdate(obj) {
+const isValidUsernameUpdate = (obj) => {
 	if (!hasExactKeys(obj, ['username'])) {
 		return false;
 	}
 	return isValidUsername(obj.username);
 }
 
+const isValidFollowingUpdate = (obj) => {
+	if (!hasExactKeys(obj, ['following_id'])) {
+		return false;
+	}
+	return isValidId(obj.following_id);
+}
+
 module.exports = {
 	isValidId,
 	isValidCredentials,
 	isValidBalanceUpdate,
-	isValidUsernameUpdate
+	isValidUsernameUpdate,
+	isValidFollowingUpdate
 };

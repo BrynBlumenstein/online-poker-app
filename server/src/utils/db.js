@@ -6,7 +6,8 @@ let sequelize;
 
 try {
 	sequelize = new Sequelize(config.DB_URL, {
-		logging: (sql) => logger.info(sql),
+		// logging: (sql) => logger.info(sql),
+		logging: false,
 		dialect: 'postgres'
 	});
 } catch (err) {
@@ -24,4 +25,14 @@ const connectToDB = async () => {
 	}
 };
 
-module.exports = { sequelize, connectToDB };
+const syncDB = async () => {
+	try {
+		await sequelize.sync({ alter: true });
+		logger.info('Successfully synced DB.');
+	} catch (err) {
+		logger.error('Failed to sync DB:', err.message);
+		process.exit(1);
+	}
+};
+
+module.exports = { sequelize, connectToDB, syncDB };
