@@ -12,12 +12,19 @@ const generateTableId = () => {
 };
 
 const createTable = (hostId) => {
+	if (activePlayers.has(hostId)) {
+        throw new Error('You are already at a table');
+    }
+
 	const id = generateTableId();
 	const newTable = {
         id: id,
 		players: [hostId]
 	};
+
 	tables.set(id, newTable);
+	activePlayers.set(hostId, newTable.id);
+
 	return newTable;
 };
 
@@ -26,11 +33,8 @@ const joinTable = (playerId, table) => {
 		throw new Error('Table not found');
 	}
     if (activePlayers.has(playerId)) {
-        throw new Error('Player already at a table');
+        throw new Error('You are already at a table');
     }
-	if (table.players.includes(playerId)) {
-		throw new Error('Player already joined');
-	}
 	if (table.players.length >= MAX_PLAYERS) {
 		throw new Error('Table is full');
 	}
@@ -52,7 +56,7 @@ const leaveTable = (playerId, table) => {
     
     const index = table.players.indexOf(playerId);
     if (index === -1) {
-        throw new Error('Player not at table');
+        throw new Error('You are not at this table');
     }
 
     table.players.splice(index, 1);
@@ -76,4 +80,8 @@ const getTable = (tableId) => {
 	return table;
 };
 
-module.exports = { createTable, joinTable, leaveTable, getTable };
+const getTables = () => {
+	return Array.from(tables.values());
+}
+
+module.exports = { createTable, joinTable, leaveTable, getTable, getTables };

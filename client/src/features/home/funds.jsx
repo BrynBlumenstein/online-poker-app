@@ -55,7 +55,6 @@ const Funds = () => {
 			handleClose(updatedUser.balance);
 		} catch (err) {
 			showSnackbar(err.message, 'error');
-			return false;
 		}
 	};
 
@@ -118,7 +117,7 @@ const Funds = () => {
 			/>
 			<HomeDialog
 				open={open}
-				handleClose={handleClose}
+				handleClose={() => handleClose()}
 				handleSubmit={handleSubmit}
 				title="Manage Funds"
 			>

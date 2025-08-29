@@ -54,7 +54,6 @@ const Account = () => {
 			handleClose(updatedUser.username);
 		} catch (err) {
 			showSnackbar(err.message, 'error');
-			return false;
 		}
 	};
 
@@ -84,7 +83,7 @@ const Account = () => {
 			/>
 			<HomeDialog
 				open={open}
-				handleClose={handleClose}
+				handleClose={() => handleClose()}
 				handleSubmit={handleSubmit}
 				title="Account"
 			>

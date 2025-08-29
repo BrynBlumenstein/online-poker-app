@@ -8,11 +8,11 @@ const HomeDialog = ({ open, handleClose, handleSubmit, title, children }) => {
 			open={open}
 			fullWidth
 			maxWidth="xs"
-			onClose={() => handleClose()}
+			onClose={handleClose}
 			slotProps={{
 				paper: {
 					component: 'form',
-					onSubmit: (event) => handleSubmit(event),
+					onSubmit: handleSubmit,
 					noValidate: true,
 					autoComplete: 'off'
 				}

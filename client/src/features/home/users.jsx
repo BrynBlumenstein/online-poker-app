@@ -57,10 +57,6 @@ const Users = () => {
 		setOpen(false);
 	};
 
-	const handleSubmit = async (event) => {
-		event.preventDefault();
-	};
-
 	const handleTabChange = (event, newTab) => {
 		setTab(newTab);
 	};
@@ -107,7 +103,7 @@ const Users = () => {
 			<HomeDialog
 				open={open}
 				handleClose={handleClose}
-				handleSubmit={handleSubmit}
+				handleSubmit={(event) => event.preventDefault()}
 				title="Users"
 			>
 				<Stack spacing={3}>
@@ -146,7 +142,7 @@ const Users = () => {
 					</Box>
 				</Stack>
 				<DialogActions>
-					<Button onClick={() => handleClose()}>Close</Button>
+					<Button onClick={handleClose}>Close</Button>
 				</DialogActions>
 			</HomeDialog>
 		</>
