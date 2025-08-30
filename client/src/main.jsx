@@ -1,51 +1,16 @@
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import { ThemeProvider, createTheme } from '@mui/material';
-import CssBaseline from '@mui/material/CssBaseline';
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import AppProviders from './components/app-providers';
 import App from './app';
-import AuthProvider from './contexts/auth/auth-provider';
-import SnackbarProvider from './contexts/snackbar/snackbar-provider';
-import TableProvider from './contexts/table/table-provider';
-
-const theme = createTheme({
-	palette: {
-		mode: 'dark',
-		primary: {
-			// main: '#36413E'
-			main: '#D7D6D6'
-		}
-	},
-	components: {
-		MuiCssBaseline: {
-			styleOverrides: {
-				html: {
-					overflowY: 'scroll'
-				}
-			}
-		},
-		MuiDialog: {
-			defaultProps: {
-				disableScrollLock: true
-			}
-		}
-	}
-});
 
 createRoot(document.getElementById('root')).render(
 	<StrictMode>
-		<ThemeProvider theme={theme}>
-			<CssBaseline />
-			<AuthProvider>
-				<TableProvider>
-					<SnackbarProvider>
-						<App />
-					</SnackbarProvider>
-				</TableProvider>
-			</AuthProvider>
-		</ThemeProvider>
+		<AppProviders>
+			<App />
+		</AppProviders>
 	</StrictMode>
 );
