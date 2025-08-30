@@ -9,6 +9,13 @@ const patchRequest = async (endpoint, body, token) => {
 	return response.data;
 };
 
+const getRequest = async (endpoint, token) => {
+	const response = await axios.get(`${baseUrl}/${endpoint}`, {
+		headers: { Authorization: `Bearer ${token}` }
+	});
+	return response.data;
+};
+
 const updateBalance = async (newBalance, token) => {
 	try {
 		return await patchRequest('balance', { balance: newBalance }, token);
@@ -27,10 +34,7 @@ const updateUsername = async (newUsername, token) => {
 
 const getAllUsers = async (token) => {
 	try {
-		const response = await axios.get(`${baseUrl}`, {
-			headers: { Authorization: `Bearer ${token}` }
-		});
-		return response.data;
+		return await getRequest('', token);
 	} catch (err) {
 		throwError(err, 'Failed to get all users');
 	}
@@ -38,12 +42,9 @@ const getAllUsers = async (token) => {
 
 const getFollowing = async (token) => {
 	try {
-		const response = await axios.get(`${baseUrl}/following`, {
-			headers: { Authorization: `Bearer ${token}` }
-		});
-		return response.data;
+		return await getRequest('following', token);
 	} catch (err) {
-		throwError(err, 'Failed to get followers');
+		throwError(err, 'Failed to get following');
 	}
 };
 
@@ -64,13 +65,10 @@ const followUser = async (followingId, token) => {
 
 const unfollowUser = async (followingId, token) => {
 	try {
-		const response = await axios.delete(
-			`${baseUrl}/following`,
-			{
-				data: { following_id: followingId },
-				headers: { Authorization: `Bearer ${token}` }
-			}
-		);
+		const response = await axios.delete(`${baseUrl}/following`, {
+			data: { following_id: followingId },
+			headers: { Authorization: `Bearer ${token}` }
+		});
 		return response.data;
 	} catch (err) {
 		throwError(err, 'Failed to unfollow user');
@@ -79,10 +77,7 @@ const unfollowUser = async (followingId, token) => {
 
 const getCurrentUser = async (token) => {
 	try {
-		const response = await axios.get(`${baseUrl}/me`, {
-			headers: { Authorization: `Bearer ${token}` }
-		});
-		return response.data;
+		return await getRequest('me', token);
 	} catch (err) {
 		throwError(err, 'Fetching current user failed');
 	}
