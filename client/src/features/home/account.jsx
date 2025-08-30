@@ -3,7 +3,6 @@ import HomeTile from './home-tile';
 import PersonIcon from '@mui/icons-material/Person';
 import useAuth from '../../contexts/auth/use-auth';
 import useSnackbar from '../../contexts/snackbar/use-snackbar';
-import usersService from '../../services/users-service';
 import TextField from '@mui/material/TextField';
 import EditIcon from '@mui/icons-material/Edit';
 import EditOffIcon from '@mui/icons-material/EditOff';
@@ -16,7 +15,7 @@ import Stack from '@mui/material/Stack';
 import HomeDialog from './home-dialog';
 
 const Account = () => {
-	const { user, updateUser } = useAuth();
+	const { user, updateUsername } = useAuth();
 	const { showSnackbar } = useSnackbar();
 	const [open, setOpen] = useState(false);
 	const [editing, setEditing] = useState(false);
@@ -41,15 +40,8 @@ const Account = () => {
 			return;
 		}
 
-		const token = localStorage.getItem('token');
 		try {
-			const updatedUser = await usersService.updateUsername(
-				newUsername,
-				token
-			);
-
-			updateUser({ username: updatedUser.username });
-
+			const updatedUser = await updateUsername(newUsername);
 			showSnackbar(`Username changed to ${updatedUser.username}`);
 			handleClose(updatedUser.username);
 		} catch (err) {

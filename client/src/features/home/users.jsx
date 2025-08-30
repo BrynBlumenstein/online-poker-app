@@ -12,42 +12,34 @@ import Tab from '@mui/material/Tab';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import PersonSearchIcon from '@mui/icons-material/PersonSearch';
-import usersService from '../../services/users-service';
 import MoneyList from './money-list';
 import Following from './following';
 import FindUser from './find-user';
+import useAuth from '../../contexts/auth/use-auth';
 
 const Users = () => {
 	const { showSnackbar } = useSnackbar();
+	const { unfollowUser, followUser, getAllUsers, getFollowing } = useAuth();
 	const [open, setOpen] = useState(false);
 	const [tab, setTab] = useState(0);
 	const [allUsers, setAllUsers] = useState(null);
 	const [following, setFollowing] = useState(null);
 
 	useEffect(() => {
-		const token = localStorage.getItem('token');
-
-		const fetchAllUsers = async () => {
+		const fetchData = async () => {
 			try {
-				const users = await usersService.getAllUsers(token);
-				setAllUsers(users);
-			} catch (err) {
-				showSnackbar(err.message, 'error');
-			}
-		};
+				const fetchedUsers = await getAllUsers();
+				setAllUsers(fetchedUsers);
 
-		const fetchFollowing = async () => {
-			try {
-				const fetchedFollowing = await usersService.getFollowing(token);
+				const fetchedFollowing = await getFollowing();
 				setFollowing(fetchedFollowing);
 			} catch (err) {
 				showSnackbar(err.message, 'error');
 			}
 		};
 
-		fetchAllUsers();
-		fetchFollowing();
-	}, [showSnackbar]);
+		fetchData();
+	}, [getAllUsers, getFollowing, showSnackbar]);
 
 	const handleUsersClick = (event) => {
 		event.currentTarget.blur();
@@ -64,12 +56,7 @@ const Users = () => {
 
 	const handleUnfollow = async (followingId) => {
 		try {
-			const token = localStorage.getItem('token');
-			const response = await usersService.unfollowUser(
-				followingId,
-				token
-			);
-
+			const response = await unfollowUser(followingId);
 			setFollowing((prev) =>
 				prev.filter((user) => user.id !== followingId)
 			);
@@ -81,12 +68,7 @@ const Users = () => {
 
 	const handleFollow = async (followingId) => {
 		try {
-			const token = localStorage.getItem('token');
-			const followedUser = await usersService.followUser(
-				followingId,
-				token
-			);
-
+			const followedUser = await followUser(followingId);
 			setFollowing((prev) => [...prev, followedUser]);
 			showSnackbar('Follow successful');
 		} catch (err) {

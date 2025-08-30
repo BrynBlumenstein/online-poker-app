@@ -11,11 +11,10 @@ import Button from '@mui/material/Button';
 import HomeTile from './home-tile';
 import useAuth from '../../contexts/auth/use-auth';
 import useSnackbar from '../../contexts/snackbar/use-snackbar';
-import usersService from '../../services/users-service';
 import HomeDialog from './home-dialog';
 
 const Funds = () => {
-	const { user, updateUser } = useAuth();
+	const { user, updateBalance } = useAuth();
 	const { showSnackbar } = useSnackbar();
 	const [open, setOpen] = useState(false);
 	const [selection, setSelection] = useState('deposit');
@@ -42,15 +41,8 @@ const Funds = () => {
 			return;
 		}
 
-		const token = localStorage.getItem('token');
 		try {
-			const updatedUser = await usersService.updateBalance(
-				balanceAfter,
-				token
-			);
-
-			updateUser({ balance: updatedUser.balance });
-
+			const updatedUser = await updateBalance(balanceAfter);
 			showSnackbar(`Balance updated to $${updatedUser.balance}`);
 			handleClose(updatedUser.balance);
 		} catch (err) {
