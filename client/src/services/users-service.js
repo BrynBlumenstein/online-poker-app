@@ -25,9 +25,11 @@ const updateUsername = async (newUsername, token) => {
 	}
 };
 
-const getAllUsers = async () => {
+const getAllUsers = async (token) => {
 	try {
-		const response = await axios.get(`${baseUrl}`);
+		const response = await axios.get(`${baseUrl}`, {
+			headers: { Authorization: `Bearer ${token}` }
+		});
 		return response.data;
 	} catch (err) {
 		throwError(err, 'Failed to get all users');
@@ -75,11 +77,23 @@ const unfollowUser = async (followingId, token) => {
 	}
 };
 
+const getCurrentUser = async (token) => {
+	try {
+		const response = await axios.get(`${baseUrl}/me`, {
+			headers: { Authorization: `Bearer ${token}` }
+		});
+		return response.data;
+	} catch (err) {
+		throwError(err, 'Fetching current user failed');
+	}
+};
+
 export default {
 	updateBalance,
 	updateUsername,
 	getAllUsers,
 	getFollowing,
 	followUser,
-	unfollowUser
+	unfollowUser,
+	getCurrentUser
 };

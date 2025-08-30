@@ -1,18 +1,14 @@
-const { User, Follow } = require('../models/index');
+const { User } = require('../models/index');
 const returnError = require('../utils/return-error');
 const {
 	isValidBalanceUpdate,
 	isValidUsernameUpdate,
 	isValidFollowingUpdate
 } = require('../utils/validation-utils');
-const getIdFromToken = require('../utils/get-id-from-token');
 const usersRouter = require('express').Router();
 
 usersRouter.patch('/balance', async (req, res) => {
-	const id = getIdFromToken(req, res);
-	if (!id) {
-		return;
-	}
+	const id = req.userId;
 
 	if (!isValidBalanceUpdate(req.body)) {
 		return returnError(res, 400, 'Invalid request body');
@@ -36,10 +32,7 @@ usersRouter.patch('/balance', async (req, res) => {
 });
 
 usersRouter.patch('/username', async (req, res) => {
-	const id = getIdFromToken(req, res);
-	if (!id) {
-		return;
-	}
+	const id = req.userId;
 
 	if (!isValidUsernameUpdate(req.body)) {
 		return returnError(res, 400, 'Invalid request body');
@@ -85,10 +78,7 @@ usersRouter.get('/', async (req, res) => {
 });
 
 usersRouter.get('/following', async (req, res) => {
-	const id = getIdFromToken(req, res);
-	if (!id) {
-		return;
-	}
+	const id = req.userId;
 
 	const user = await User.findByPk(id);
 	if (!user) {
@@ -101,10 +91,7 @@ usersRouter.get('/following', async (req, res) => {
 });
 
 usersRouter.post('/following', async (req, res) => {
-	const id = getIdFromToken(req, res);
-	if (!id) {
-		return;
-	}
+	const id = req.userId;
 
 	if (!isValidFollowingUpdate(req.body)) {
 		return returnError(res, 400, 'Invalid request body');
@@ -129,10 +116,7 @@ usersRouter.post('/following', async (req, res) => {
 });
 
 usersRouter.delete('/following', async (req, res) => {
-	const id = getIdFromToken(req, res);
-	if (!id) {
-		return;
-	}
+	const id = req.userId;
 
 	if (!isValidFollowingUpdate(req.body)) {
 		return returnError(res, 400, 'Invalid request body');
@@ -155,6 +139,18 @@ usersRouter.delete('/following', async (req, res) => {
 	} catch (err) {
 		return returnError(res, 500, 'Failed to unfollow user');
 	}
+});
+
+usersRouter.get('/me', async (req, res) => {
+	const id = req.userId;
+
+	const user = await User.findByPk(id);
+	if (!user) {
+		return returnError(res, 404, 'User not found');
+	}
+
+	const { password_hash, ...userData } = user.toJSON();
+	res.status(200).json(userData);
 });
 
 module.exports = usersRouter;

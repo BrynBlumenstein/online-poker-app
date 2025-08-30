@@ -1,5 +1,4 @@
 import AuthPage from '../features/auth/auth-page';
-import authService from '../services/auth-service';
 import useAuth from '../contexts/auth/use-auth';
 import useSnackbar from '../contexts/snackbar/use-snackbar';
 import {
@@ -14,18 +13,13 @@ const SignIn = () => {
 	const onSignIn = async (username, password) => {
 		if (!(isValidUsername(username) && isValidPassword(password))) {
 			showSnackbar('Invalid username or password', 'error');
-			return false;
 		}
 
 		try {
-			const user = await authService.signIn({ username, password });
-			const { token, userData } = user;
-			signIn(token, userData);
+			await signIn({ username, password });
 			showSnackbar(`Signed in as ${username}`);
-			return true;
 		} catch (err) {
 			showSnackbar(err.message, 'error');
-			return false;
 		}
 	};
 

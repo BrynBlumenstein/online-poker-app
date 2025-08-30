@@ -1,27 +1,25 @@
+import { useNavigate } from 'react-router-dom';
 import AuthPage from '../features/auth/auth-page';
-import authService from '../services/auth-service';
+import useAuth from '../contexts/auth/use-auth';
 import useSnackbar from '../contexts/snackbar/use-snackbar';
-import {
-	isValidUsername,
-	isValidPassword
-} from '../contexts/auth/auth-utils';
+import { isValidUsername, isValidPassword } from '../contexts/auth/auth-utils';
 
 const SignUp = () => {
 	const { showSnackbar } = useSnackbar();
+	const { signUp } = useAuth();
+	const navigate = useNavigate();
 
 	const onSignUp = async (username, password) => {
 		if (!(isValidUsername(username) && isValidPassword(password))) {
 			showSnackbar('Invalid username or password', 'error');
-			return false;
 		}
 
 		try {
-			const user = await authService.signUp({ username, password });
+			const user = await signUp({ username, password });
 			showSnackbar(`${user.username} signed up`);
-			return true;
+			navigate('/sign-in');
 		} catch (err) {
 			showSnackbar(err.message, 'error');
-			return false;
 		}
 	};
 

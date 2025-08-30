@@ -1,19 +1,10 @@
 const tablesRouter = require('express').Router();
 const tablesService = require('../services/tables-service');
-const getIdFromToken = require('../utils/get-id-from-token');
 const returnError = require('../utils/return-error');
 const { isValidTableRequest } = require('../utils/validation-utils');
 
-tablesRouter.get('/', (req, res) => {
-	const tables = tablesService.getTables();
-	res.status(200).json(tables);
-});
-
 tablesRouter.post('/', (req, res) => {
-	const hostId = getIdFromToken(req, res);
-	if (!hostId) {
-		return;
-	}
+	const hostId = req.userId;
 
 	try {
 		const newTable = tablesService.createTable(hostId);
@@ -24,16 +15,13 @@ tablesRouter.post('/', (req, res) => {
 });
 
 const handleTableAction = (actionFn) => (req, res) => {
-	const playerId = getIdFromToken(req, res);
-	if (!playerId) {
-		return;
-	}
+	const playerId = req.userId;
 
 	if (!isValidTableRequest(req.body)) {
 		return returnError(res, 400, 'Invalid request body');
 	}
 
-	const table = tablesService.getTable((req.body.tableId).toUpperCase());
+	const table = tablesService.getTable(req.body.tableId.toUpperCase());
 	if (!table) {
 		return returnError(res, 404, 'Table not found');
 	}
@@ -49,5 +37,18 @@ const handleTableAction = (actionFn) => (req, res) => {
 tablesRouter.post('/join', handleTableAction(tablesService.joinTable));
 
 tablesRouter.post('/leave', handleTableAction(tablesService.leaveTable));
+
+tablesRouter.get('/', (req, res) => {
+	const tables = tablesService.getTables();
+	res.status(200).json(tables);
+});
+
+tablesRouter.get('/current', (req, res) => {
+	const playerId = req.userId;
+
+	const currentTable = tablesService.getCurrentTable(playerId);
+
+	res.status(200).json(currentTable);
+});
 
 module.exports = tablesRouter;

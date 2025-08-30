@@ -23,15 +23,4 @@ const signIn = async (credentials) => {
 	}
 };
 
-const getCurrentUser = async (token) => {
-	try {
-		const response = await axios.get(`${baseUrl}/me`, {
-			headers: { Authorization: `Bearer ${token}` }
-		});
-		return response.data;
-	} catch (err) {
-		throwError(err, 'Fetching current user failed');
-	}
-};
-
-export default { signUp, signIn, getCurrentUser };
+export default { signUp, signIn };

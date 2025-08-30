@@ -11,8 +11,11 @@ app.use(express.json());
 app.use(cors());
 app.use(middleware.requestLogger);
 
-app.use('/api/users', usersRouter);
 app.use('/api/auth', authRouter);
+
+app.use(middleware.auth);
+
+app.use('/api/users', usersRouter);
 app.use('/api/tables', tablesRouter);
 
 app.use(middleware.unknownEndpoint);

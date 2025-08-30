@@ -5,7 +5,6 @@ const { User } = require('../models/index');
 const config = require('../utils/config');
 const { isValidCredentials } = require('../utils/validation-utils');
 const returnError = require('../utils/return-error');
-const getIdFromToken = require('../utils/get-id-from-token');
 
 const ONE_DAY = 60 * 60 * 24;
 
@@ -65,21 +64,6 @@ authRouter.post('/sign-in', async (req, res) => {
 
 	const { password_hash, ...userData } = user.toJSON();
 	res.status(200).json({ token, userData });
-});
-
-authRouter.get('/me', async (req, res) => {
-	const id = getIdFromToken(req, res);
-	if (!id) {
-		return;
-	}
-
-	const user = await User.findByPk(id);
-	if (!user) {
-		return returnError(res, 404, 'User not found');
-	}
-
-	const { password_hash, ...userData } = user.toJSON();
-	res.status(200).json(userData);
 });
 
 module.exports = authRouter;

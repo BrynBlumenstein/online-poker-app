@@ -9,6 +9,7 @@ import '@fontsource/roboto/700.css';
 import App from './app';
 import AuthProvider from './contexts/auth/auth-provider';
 import SnackbarProvider from './contexts/snackbar/snackbar-provider';
+import TableProvider from './contexts/table/table-provider';
 
 const theme = createTheme({
 	palette: {
@@ -39,9 +40,11 @@ createRoot(document.getElementById('root')).render(
 		<ThemeProvider theme={theme}>
 			<CssBaseline />
 			<AuthProvider>
-				<SnackbarProvider>
-					<App />
-				</SnackbarProvider>
+				<TableProvider>
+					<SnackbarProvider>
+						<App />
+					</SnackbarProvider>
+				</TableProvider>
 			</AuthProvider>
 		</ThemeProvider>
 	</StrictMode>

@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
@@ -17,7 +16,6 @@ const AuthForm = ({
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
 	const [showPassword, setShowPassword] = useState(false);
-	const navigate = useNavigate();
 
 	const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -31,12 +29,7 @@ const AuthForm = ({
 
 	const handleSubmit = async (event) => {
 		event.preventDefault();
-		const successfulSubmit = await onSubmit(username, password);
-		if (successfulSubmit) {
-			setUsername('');
-			setPassword('');
-			navigate('/', { replace: true });
-		}
+		await onSubmit(username, password);
 	};
 
 	return (

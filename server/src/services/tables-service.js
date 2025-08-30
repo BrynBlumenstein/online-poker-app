@@ -84,4 +84,12 @@ const getTables = () => {
 	return Array.from(tables.values());
 }
 
-module.exports = { createTable, joinTable, leaveTable, getTable, getTables };
+const getCurrentTable = (playerId) => {
+	const tableId = activePlayers.get(playerId);
+	if (!tableId) {
+        return null;
+    }
+	return getTable(tableId);
+} 
+
+module.exports = { createTable, joinTable, leaveTable, getTable, getTables, getCurrentTable };

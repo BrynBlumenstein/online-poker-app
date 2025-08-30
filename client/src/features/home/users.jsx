@@ -25,9 +25,11 @@ const Users = () => {
 	const [following, setFollowing] = useState(null);
 
 	useEffect(() => {
+		const token = localStorage.getItem('token');
+
 		const fetchAllUsers = async () => {
 			try {
-				const users = await usersService.getAllUsers();
+				const users = await usersService.getAllUsers(token);
 				setAllUsers(users);
 			} catch (err) {
 				showSnackbar(err.message, 'error');
@@ -35,7 +37,6 @@ const Users = () => {
 		};
 
 		const fetchFollowing = async () => {
-			const token = localStorage.getItem('token');
 			try {
 				const fetchedFollowing = await usersService.getFollowing(token);
 				setFollowing(fetchedFollowing);

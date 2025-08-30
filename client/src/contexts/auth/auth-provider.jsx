@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import AuthContext from './auth-context';
 import authService from '../../services/auth-service';
+import usersService from '../../services/users-service';
+import tokenService from '../../services/token-service';
 
 const AuthProvider = ({ children }) => {
 	const [user, setUser] = useState(null);
@@ -8,10 +10,10 @@ const AuthProvider = ({ children }) => {
 
 	useEffect(() => {
 		const fetchUser = async () => {
-			const token = localStorage.getItem('token');
+			const token = tokenService.get();
 			if (token) {
 				try {
-					const userData = await authService.getCurrentUser(token);
+					const userData = await usersService.getCurrentUser(token);
 					setUser(userData);
 				} catch (err) {
 					console.error(err);
@@ -24,14 +26,20 @@ const AuthProvider = ({ children }) => {
 		fetchUser();
 	}, []);
 
-	const signIn = (token, userData) => {
+	const signUp = async (credentials) => {
+		const user = await authService.signUp(credentials);
+		return user;
+	};
+
+	const signIn = async (credentials) => {
+		const { token, userData } = await authService.signIn(credentials);
 		setUser(userData);
-		localStorage.setItem('token', token);
+		tokenService.set(token);
 	};
 
 	const signOut = () => {
 		setUser(null);
-		localStorage.removeItem('token');
+		tokenService.clear();
 	};
 
 	const updateUser = (updates) => {
@@ -40,7 +48,7 @@ const AuthProvider = ({ children }) => {
 
 	return (
 		<AuthContext.Provider
-			value={{ user, fetchingUser, signIn, signOut, updateUser }}
+			value={{ user, fetchingUser, signUp, signIn, signOut, updateUser }}
 		>
 			{children}
 		</AuthContext.Provider>

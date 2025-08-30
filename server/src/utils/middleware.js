@@ -1,4 +1,6 @@
+const getIdFromToken = require('./get-id-from-token');
 const logger = require('./logger');
+const returnError = require('./return-error');
 
 const requestLogger = (req, res, next) => {
 	logger.info('Method:', req.method);
@@ -6,6 +8,17 @@ const requestLogger = (req, res, next) => {
 	logger.info('Body:  ', req.body);
 	logger.info('---');
 	next();
+};
+
+const auth = (req, res, next) => {
+	try {
+		const userId = getIdFromToken(req, res);
+		req.userId = userId;
+		next();
+	} catch (err) {
+		logger.error(err.message);
+		return returnError(res, 401, err.message);
+	}
 };
 
 const unknownEndpoint = (req, res) => {
@@ -20,4 +33,4 @@ const errorHandler = (err, req, res, next) => {
 	});
 };
 
-module.exports = { requestLogger, unknownEndpoint, errorHandler };
+module.exports = { requestLogger, auth, unknownEndpoint, errorHandler };

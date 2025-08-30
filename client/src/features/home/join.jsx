@@ -6,15 +6,14 @@ import Button from '@mui/material/Button';
 import HomeTile from './home-tile';
 import HomeDialog from './home-dialog';
 import TravelExploreIcon from '@mui/icons-material/TravelExplore';
-import tablesService from '../../services/tables-service';
 import useSnackbar from '../../contexts/snackbar/use-snackbar';
-import { useNavigate } from 'react-router-dom';
+import useTable from '../../contexts/table/use-table';
 
 const Join = () => {
 	const { showSnackbar } = useSnackbar();
 	const [open, setOpen] = useState(false);
 	const [joinCode, setJoinCode] = useState('');
-	const navigate = useNavigate();
+	const { joinTable } = useTable();
 
 	const handleJoinClick = (event) => {
 		event.currentTarget.blur();
@@ -39,11 +38,8 @@ const Join = () => {
 		}
 
 		try {
-			const token = localStorage.getItem('token');
-			const joinedTable = await tablesService.joinTable(joinCode, token);
+			await joinTable(joinCode);
 			showSnackbar('Table joined successfully');
-			setJoinCode('');
-			navigate(`/tables/${joinedTable.id}`);
 		} catch (err) {
 			showSnackbar(err.message, 'error');
 		}
