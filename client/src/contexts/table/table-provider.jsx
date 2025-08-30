@@ -40,6 +40,12 @@ const TableProvider = ({ children }) => {
 		setTable(joinedTable);
 	};
 
+	const leaveTable = async () => {
+		const token = tokenService.get();
+		await tablesService.leaveTable(table.id, token);
+		setTable(null);
+	};
+
 	const updateTable = (updates, replace = false) => {
 		if (replace) {
 			setTable(updates);
@@ -50,7 +56,7 @@ const TableProvider = ({ children }) => {
 
 	return (
 		<TableContext.Provider
-			value={{ table, fetchingTable, hostTable, joinTable, updateTable }}
+			value={{ table, fetchingTable, hostTable, joinTable, leaveTable, updateTable }}
 		>
 			{children}
 		</TableContext.Provider>

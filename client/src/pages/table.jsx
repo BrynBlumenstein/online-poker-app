@@ -1,7 +1,11 @@
-import Typography from '@mui/material/Typography';
+import TableHeader from '../features/table/table-header';
 
 const Table = () => {
-	return <Typography>At a table</Typography>;
+	return (
+		<>
+			<TableHeader />
+		</>
+	);
 };
 
 export default Table;
