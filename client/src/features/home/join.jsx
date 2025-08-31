@@ -66,7 +66,7 @@ const Join = () => {
 				<Stack spacing={3}>
 					<TextField
 						label="Join Code"
-						size="small"
+						placeholder='XXXXXX'
 						value={joinCode}
 						onChange={({ target }) => {
 							handleJoinCodeChange(target.value);
