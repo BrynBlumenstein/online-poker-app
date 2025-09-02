@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import AuthPage from '../features/auth/auth-page';
 import useAuth from '../contexts/auth/use-auth';
 import useSnackbar from '../contexts/snackbar/use-snackbar';
-import { isValidUsername, isValidPassword } from '../contexts/auth/auth-utils';
+import { isValidUsername, isValidPassword } from '../utils/auth-utils';
 
 const SignUp = () => {
 	const { showSnackbar } = useSnackbar();

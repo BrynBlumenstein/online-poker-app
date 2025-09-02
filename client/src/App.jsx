@@ -2,7 +2,8 @@ import {
 	BrowserRouter as Router,
 	Routes,
 	Route,
-	Navigate
+	Navigate,
+	Outlet
 } from 'react-router-dom';
 import SignIn from './pages/sign-in';
 import SignUp from './pages/sign-up';
@@ -24,7 +25,7 @@ const App = () => {
 	return (
 		<Router>
 			<Routes>
-				<Route element={table ? null : <HeaderLayout />}>
+				<Route element={table ? <Outlet /> : <HeaderLayout />}>
 					<Route
 						path="/sign-in"
 						element={

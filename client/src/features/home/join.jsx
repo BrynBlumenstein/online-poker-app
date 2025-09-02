@@ -29,7 +29,7 @@ const Join = () => {
 		return /^[A-Z0-9]{6}$/i.test(code);
 	};
 
-	const handleSubmit = async (event) => {
+	const handleSubmit = (event) => {
 		event.preventDefault();
 
 		if (!isValidJoinCode(joinCode)) {
@@ -37,12 +37,7 @@ const Join = () => {
 			return;
 		}
 
-		try {
-			await joinTable(joinCode);
-			showSnackbar('Table joined successfully');
-		} catch (err) {
-			showSnackbar(err.message, 'error');
-		}
+		joinTable(joinCode);
 	};
 
 	const handleJoinCodeChange = (value) => {

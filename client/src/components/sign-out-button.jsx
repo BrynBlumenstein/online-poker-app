@@ -5,14 +5,17 @@ import Typography from '@mui/material/Typography';
 import LogoutIcon from '@mui/icons-material/Logout';
 import useAuth from '../contexts/auth/use-auth';
 import useSnackbar from '../contexts/snackbar/use-snackbar';
+import useTable from '../contexts/table/use-table';
 
 const SignOutButton = () => {
-	const { signOut } = useAuth();
+	const { signOut: tableSignOut } = useTable();
+	const { signOut: authSignOut } = useAuth();
 	const { showSnackbar } = useSnackbar();
 	const navigate = useNavigate();
 
 	const handleSignOut = () => {
-		signOut();
+		tableSignOut();
+		authSignOut();
 		showSnackbar('Sign-out successful', 'success');
 		navigate('/sign-in', { replace: true });
 	};

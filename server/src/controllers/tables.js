@@ -1,4 +1,4 @@
-const tablesRouter = require('express').Router();
+/* const tablesRouter = require('express').Router();
 const tablesService = require('../services/tables-service');
 const returnError = require('../utils/return-error');
 const { isValidTableRequest } = require('../utils/validation-utils');
@@ -15,7 +15,7 @@ tablesRouter.post('/', (req, res) => {
 });
 
 const handleTableAction = (actionFn) => (req, res) => {
-	const playerId = req.userId;
+	const userId = req.userId;
 
 	if (!isValidTableRequest(req.body)) {
 		return returnError(res, 400, 'Invalid request body');
@@ -27,7 +27,7 @@ const handleTableAction = (actionFn) => (req, res) => {
 	}
 
 	try {
-		const updatedTable = actionFn(playerId, table);
+		const updatedTable = actionFn(userId, table);
 		res.status(200).json(updatedTable);
 	} catch (err) {
 		return returnError(res, 400, err.message);
@@ -44,11 +44,12 @@ tablesRouter.get('/', (req, res) => {
 });
 
 tablesRouter.get('/current', (req, res) => {
-	const playerId = req.userId;
+	const userId = req.userId;
 
-	const currentTable = tablesService.getCurrentTable(playerId);
+	const currentTable = tablesService.getCurrentTable(userId);
 
 	res.status(200).json(currentTable);
 });
 
 module.exports = tablesRouter;
+ */

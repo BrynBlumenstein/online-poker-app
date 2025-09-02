@@ -1,7 +1,7 @@
-const app = require('./src/app');
 const config = require('./src/utils/config');
 const logger = require('./src/utils/logger');
 const { connectToDB, syncDB } = require('./src/utils/db');
+const { server } = require('./src/server');
 
 const startServer = async () => {
 	try {
@@ -11,7 +11,7 @@ const startServer = async () => {
 		logger.info('Syncing DB');
 		await syncDB();
 
-		app.listen(config.PORT, () => {
+		server.listen(config.PORT, () => {
 			logger.info(`Server running on port ${config.PORT}`);
 		});
 	} catch (err) {

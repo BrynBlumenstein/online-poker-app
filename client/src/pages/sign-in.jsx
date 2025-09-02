@@ -4,7 +4,7 @@ import useSnackbar from '../contexts/snackbar/use-snackbar';
 import {
 	isValidUsername,
 	isValidPassword
-} from '../contexts/auth/auth-utils';
+} from '../utils/auth-utils';
 
 const SignIn = () => {
 	const { showSnackbar } = useSnackbar();

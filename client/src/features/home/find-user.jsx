@@ -9,7 +9,7 @@ import IconButton from '@mui/material/IconButton';
 import TextField from '@mui/material/TextField';
 import Stack from '@mui/material/Stack';
 import { useState } from 'react';
-import { isValidUsername } from '../../contexts/auth/auth-utils';
+import { isValidUsername } from '../../utils/auth-utils';
 import useAuth from '../../contexts/auth/use-auth';
 
 const FindUser = ({ allUsers, following, onFollow, onUnfollow }) => {

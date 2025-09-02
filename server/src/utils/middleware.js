@@ -1,6 +1,6 @@
-const getIdFromToken = require('./get-id-from-token');
 const logger = require('./logger');
 const returnError = require('./return-error');
+const verifyToken = require('./verify-token');
 
 const requestLogger = (req, res, next) => {
 	logger.info('Method:', req.method);
@@ -11,9 +11,19 @@ const requestLogger = (req, res, next) => {
 };
 
 const auth = (req, res, next) => {
+	const authHeader = req.headers.authorization;
+
+	if (!authHeader || !authHeader.startsWith('Bearer ')) {
+		const message = 'Missing or invalid token';
+		logger.error(message);
+		return returnError(res, 401, message);
+	}
+
+	const token = authHeader.split(' ')[1];
+
 	try {
-		const userId = getIdFromToken(req, res);
-		req.userId = userId;
+		const user = verifyToken(token);
+		req.userId = user.id;
 		next();
 	} catch (err) {
 		logger.error(err.message);

@@ -1,95 +1,165 @@
 const MAX_PLAYERS = 9;
+const THIRTY_SECONDS = 30000;
 
-const activePlayers = new Map();
 const tables = new Map();
+const disconnectTimers = new Map();
 
 const generateTableId = () => {
 	let id;
 	do {
 		id = Math.random().toString(36).slice(2, 8).toUpperCase();
-	} while (getTable(id));
+	} while (tables.get(id));
 	return id;
 };
 
-const createTable = (hostId) => {
-	if (activePlayers.has(hostId)) {
-        throw new Error('You are already at a table');
-    }
+const hostTable = (socketId, userId, username) => {
+	const currentTable = getCurrentTable(userId);
+	if (currentTable) {
+		return { success: false, error: 'You are already in a table' };
+	}
 
 	const id = generateTableId();
-	const newTable = {
-        id: id,
-		players: [hostId]
+
+	const table = {
+		id,
+		players: new Map()
 	};
 
-	tables.set(id, newTable);
-	activePlayers.set(hostId, newTable.id);
+	const player = {
+		userId,
+		username,
+		socketIds: new Set([socketId])
+	};
 
-	return newTable;
+	table.players.set(userId, player);
+
+	tables.set(id, table);
+
+	return { success: true, table };
 };
 
-const joinTable = (playerId, table) => {
-	if (!table) {
-		throw new Error('Table not found');
+const joinTable = (socketId, userId, username, tableId) => {
+	const currentTable = getCurrentTable(userId);
+	if (currentTable) {
+		return { success: false, error: 'You are already in a table' };
 	}
-    if (activePlayers.has(playerId)) {
-        throw new Error('You are already at a table');
-    }
-	if (table.players.length >= MAX_PLAYERS) {
-		throw new Error('Table is full');
-	}
 
-	table.players.push(playerId);
-    activePlayers.set(playerId, table.id);
-
-	return table;
-};
-
-const deleteTable = (tableId) => {
-	return tables.delete(tableId);
-};
-
-const leaveTable = (playerId, table) => {
-	if (!table) {
-		throw new Error('Table not found');
-	}
-    
-    const index = table.players.indexOf(playerId);
-    if (index === -1) {
-        throw new Error('You are not at this table');
-    }
-
-    table.players.splice(index, 1);
-    activePlayers.delete(playerId);
-
-    if (table.players.length === 0) {
-        deleteTable(table.id);
-        return null;
-    }
-
-	return table;
-};
-
-const getTable = (tableId) => {
 	const table = tables.get(tableId);
-
 	if (!table) {
-		return null;
+		return { success: false, error: 'Table not found' };
 	}
 
-	return table;
+	if (table.players.size >= MAX_PLAYERS) {
+		return { success: false, error: 'Table full' };
+	}
+
+	player = {
+		userId,
+		username,
+		socketIds: new Set()
+	};
+	table.players.set(userId, player);
+
+	player.socketIds.add(socketId);
+
+	if (disconnectTimers.has(userId)) {
+		clearTimeout(disconnectTimers.get(userId));
+		disconnectTimers.delete(userId);
+	}
+
+	return { success: true, table };
 };
 
-const getTables = () => {
-	return Array.from(tables.values());
-}
+const leaveTable = (userId, tableId) => {
+	const table = tables.get(tableId);
+	if (!table) {
+		return { success: false, error: 'Table not found' };
+	}
 
-const getCurrentTable = (playerId) => {
-	const tableId = activePlayers.get(playerId);
-	if (!tableId) {
-        return null;
-    }
-	return getTable(tableId);
-} 
+	const player = table.players.get(userId);
+	if (!player) {
+		return { success: false, error: 'Player not in table' };
+	}
 
-module.exports = { createTable, joinTable, leaveTable, getTable, getTables, getCurrentTable };
+	if (disconnectTimers.has(userId)) {
+		clearTimeout(disconnectTimers.get(userId));
+		disconnectTimers.delete(userId);
+	}
+
+	table.players.delete(userId);
+
+	if (table.players.size === 0) {
+		tables.delete(tableId);
+	}
+
+	return { success: true, table };
+};
+
+const handleSocketDisconnect = (io, socket) => {
+	const { socketId, userId, username } = socket;
+
+	const table = getCurrentTable(userId);
+	if (!table) {
+		return;
+	}
+
+	const player = table.players.get(userId);
+	if (!player) {
+		return;
+	}
+
+	if (!player.socketIds.has(socketId)) {
+		return;
+	}
+
+	player.socketIds.delete(socketId);
+
+	if (player.socketIds.size > 0) {
+		return;
+	}
+
+	const gracePeriod = THIRTY_SECONDS;
+
+	const timeoutId = setTimeout(() => {
+		const stillTable = getCurrentTable(userId);
+		if (!stillTable) {
+			return;
+		}
+
+		const stillPlayer = stillTable.players.get(userId);
+		if (!stillPlayer || stillPlayer.socketIds.size > 0) {
+			return;
+		}
+
+		stillTable.players.delete(userId);
+		disconnectTimers.delete(userId);
+
+		socket.to(stillTable.id).emit('playerLeft', `${username} left`);
+		io.to(stillTable.id).emit('tableUpdated', stillTable);
+	}, gracePeriod);
+
+	disconnectTimers.set(userId, timeoutId);
+};
+
+const getCurrentTable = (userId) => {
+	for (const table of tables.values()) {
+		if (table.players.has(userId)) {
+			return table;
+		}
+	}
+	return null;
+};
+
+const addSocketToPlayer = (table, socketId, userId) => {
+	const player = table.players.get(userId);
+	player.socketIds.add(socketId);
+};
+
+module.exports = {
+	hostTable,
+	joinTable,
+	leaveTable,
+	handleSocketDisconnect,
+	getCurrentTable,
+	addSocketToPlayer
+};

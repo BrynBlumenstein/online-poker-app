@@ -1,62 +1,127 @@
 import { useState, useEffect } from 'react';
 import TableContext from './table-context';
-import tablesService from '../../services/tables-service';
-import tokenService from '../../services/token-service';
+import useSocket from '../../contexts/socket/use-socket';
+import useSnackbar from '../snackbar/use-snackbar';
+
+const DELAY_FOR_REFRESH = 100;
 
 const TableProvider = ({ children }) => {
 	const [table, setTable] = useState(null);
 	const [fetchingTable, setFetchingTable] = useState(true);
+	const { showSnackbar } = useSnackbar();
+	const { socket, connected } = useSocket();
 
 	useEffect(() => {
-		const fetchTable = async () => {
-			const token = tokenService.get();
-			if (token) {
-				try {
-					const tableData = await tablesService.getCurrentTable(
-						token
-					);
-					if (tableData) {
-						setTable(tableData);
-					}
-				} catch (err) {
-					console.error(err);
-				}
-			}
+		if (!socket || !connected) {
+			const timeoutId = setTimeout(
+				() => setFetchingTable(false),
+				DELAY_FOR_REFRESH
+			);
+			return () => clearTimeout(timeoutId);
+		}
+
+		const onCurrentTable = (tableData) => {
+			setTable(tableData || null);
 			setFetchingTable(false);
 		};
 
-		fetchTable();
-	}, []);
+		const onTableUpdated = (tableData) => {
+			setTable(tableData);
+		};
 
-	const hostTable = async () => {
-		const token = tokenService.get();
-		const hostedTable = await tablesService.hostTable(token);
-		setTable(hostedTable);
+		socket.on('playerJoined', showSnackbar);
+		socket.on('playerLeft', showSnackbar);
+		socket.on('currentTable', onCurrentTable);
+		socket.on('tableUpdated', onTableUpdated);
+
+		setFetchingTable(true);
+		socket.emit('getCurrentTable');
+
+		return () => {
+			socket.off('playerJoined', showSnackbar);
+			socket.off('playerLeft', showSnackbar);
+			socket.off('currentTable', onCurrentTable);
+			socket.off('tableUpdated');
+		};
+	}, [socket, connected, showSnackbar]);
+
+	const hostTable = () => {
+		if (!socket || !connected) {
+			showSnackbar('Not connected', 'error');
+		}
+
+		socket.emit('hostTable', (res) => {
+			if (res?.error) {
+				showSnackbar(res.error, 'error');
+				return;
+			}
+
+			showSnackbar('Table hosted successfully');
+		});
 	};
 
-	const joinTable = async (joinCode) => {
-		const token = tokenService.get();
-		const joinedTable = await tablesService.joinTable(joinCode, token);
-		setTable(joinedTable);
+	const joinTable = (tableId) => {
+		if (!socket || !connected) {
+			showSnackbar('Not connected', 'error');
+		}
+
+		socket.emit('joinTable', tableId, (res) => {
+			if (res?.error) {
+				showSnackbar(res.error, 'error');
+				return;
+			}
+
+			showSnackbar('Table joined successfully');
+		});
 	};
 
-	const leaveTable = async () => {
-		const token = tokenService.get();
-		await tablesService.leaveTable(table.id, token);
-		setTable(null);
+	const leaveTable = () => {
+		if (!table) {
+			showSnackbar('Not at a table', 'error');
+		}
+
+		if (!socket || !connected) {
+			showSnackbar('Not connected', 'error');
+		}
+
+		socket.emit('leaveTable', table.id, (res) => {
+			if (res?.error) {
+				showSnackbar(res.error, 'error');
+				return;
+			}
+
+			setTable(null);
+			showSnackbar('Successfully left table');
+		});
 	};
 
-	const updateTable = (updates, replace = false) => {
+	const signOut = () => {
+		if (!socket || !connected) {
+			showSnackbar('Not connected', 'error');
+		}
+
+		socket.emit('signOut');
+	};
+
+	/* const updateTable = (updates, replace = false) => {
 		if (replace) {
 			setTable(updates);
 		} else {
 			setTable((prev) => ({ ...prev, ...updates }));
 		}
-	};
+	}; */
 
 	return (
 		<TableContext.Provider
-			value={{ table, fetchingTable, hostTable, joinTable, leaveTable, updateTable }}
+			value={{
+				table,
+				fetchingTable,
+				hostTable,
+				joinTable,
+				leaveTable,
+				signOut
+				// updateTable
+			}}
 		>
 			{children}
 		</TableContext.Provider>

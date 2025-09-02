@@ -1,4 +1,4 @@
-import axios from 'axios';
+/* import axios from 'axios';
 import { throwError } from './services-utils';
 const baseUrl = 'http://localhost:3001/api/tables';
 
@@ -45,3 +45,4 @@ const getCurrentTable = async (token) => {
 };
 
 export default { hostTable, joinTable, leaveTable, getCurrentTable };
+ */

@@ -1,7 +1,8 @@
 import { ThemeProvider, createTheme } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
-import AuthProvider from '../contexts/auth/auth-provider';
 import SnackbarProvider from '../contexts/snackbar/snackbar-provider';
+import AuthProvider from '../contexts/auth/auth-provider';
+import SocketProvider from '../contexts/socket/socket-provider';
 import TableProvider from '../contexts/table/table-provider';
 
 const theme = createTheme({
@@ -32,11 +33,13 @@ const AppProviders = ({ children }) => {
 	return (
 		<ThemeProvider theme={theme}>
 			<CssBaseline />
-			<AuthProvider>
-				<TableProvider>
-					<SnackbarProvider>{children}</SnackbarProvider>
-				</TableProvider>
-			</AuthProvider>
+			<SnackbarProvider>
+				<AuthProvider>
+					<SocketProvider>
+						<TableProvider>{children}</TableProvider>
+					</SocketProvider>
+				</AuthProvider>
+			</SnackbarProvider>
 		</ThemeProvider>
 	);
 };
