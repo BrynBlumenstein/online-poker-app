@@ -3,7 +3,7 @@ import TableContext from './table-context';
 import useSocket from '../../contexts/socket/use-socket';
 import useSnackbar from '../snackbar/use-snackbar';
 
-const DELAY_FOR_REFRESH = 100;
+const DELAY_FOR_REFRESH = 300;
 
 const TableProvider = ({ children }) => {
 	const [table, setTable] = useState(null);
@@ -31,6 +31,7 @@ const TableProvider = ({ children }) => {
 
 		socket.on('playerJoined', showSnackbar);
 		socket.on('playerLeft', showSnackbar);
+		socket.on('playerBoughtIn', showSnackbar);
 		socket.on('currentTable', onCurrentTable);
 		socket.on('tableUpdated', onTableUpdated);
 
@@ -103,6 +104,81 @@ const TableProvider = ({ children }) => {
 		socket.emit('signOut');
 	};
 
+	const buyIn = (amount) => {
+		if (!socket || !connected) {
+			showSnackbar('Not connected', 'error');
+		}
+
+		socket.emit('buyIn', amount, (res) => {
+			if (res?.error) {
+				showSnackbar(res.error, 'error');
+				return;
+			}
+
+			showSnackbar(`Bought in for $${amount}`);
+		});
+	};
+
+	const fold = () => {
+		if (!socket || !connected) {
+			showSnackbar('Not connected', 'error');
+		}
+
+		socket.emit('fold', (res) => {
+			if (res?.error) {
+				showSnackbar(res.error, 'error');
+				return;
+			}
+
+			showSnackbar('Folded');
+		});
+	};
+
+	const call = () => {
+		if (!socket || !connected) {
+			showSnackbar('Not connected', 'error');
+		}
+
+		socket.emit('call', (res) => {
+			if (res?.error) {
+				showSnackbar(res.error, 'error');
+				return;
+			}
+
+			showSnackbar('Called');
+		});
+	};
+
+	const raise = (amount) => {
+		if (!socket || !connected) {
+			showSnackbar('Not connected', 'error');
+		}
+
+		socket.emit('raise', amount, (res) => {
+			if (res?.error) {
+				showSnackbar(res.error, 'error');
+				return;
+			}
+
+			showSnackbar(`Raised to $${amount}`);
+		});
+	};
+
+	const allIn = (amount) => {
+		if (!socket || !connected) {
+			showSnackbar('Not connected', 'error');
+		}
+
+		socket.emit('allIn', amount, (res) => {
+			if (res?.error) {
+				showSnackbar(res.error, 'error');
+				return;
+			}
+
+			showSnackbar(`Went all in for $${amount}`);
+		});
+	};
+
 	/* const updateTable = (updates, replace = false) => {
 		if (replace) {
 			setTable(updates);
@@ -119,7 +195,12 @@ const TableProvider = ({ children }) => {
 				hostTable,
 				joinTable,
 				leaveTable,
-				signOut
+				signOut,
+				buyIn,
+				fold,
+				call,
+				raise,
+				allIn
 				// updateTable
 			}}
 		>

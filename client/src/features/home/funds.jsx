@@ -73,15 +73,12 @@ const Funds = () => {
 				? Math.min(Math.max(num, 1), 100)
 				: Math.min(Math.max(num, 1), user.balance);
 
-		const displayAmount =
-			selection === 'deposit' ? num : Math.min(num, user.balance);
-
 		const newBalance =
 			selection === 'deposit'
 				? user.balance + num
 				: Math.max(user.balance - num, 0);
 
-		setAmount(displayAmount !== 0 ? displayAmount : '');
+		setAmount(num !== 0 ? num : '');
 		setBalanceAfter(newBalance);
 	};
 
@@ -106,6 +103,7 @@ const Funds = () => {
 				icon={<AccountBalanceWalletIcon fontSize="large" />}
 				label="Manage Funds"
 				onTileClick={handleFundsClick}
+				disabled={true}
 			/>
 			<HomeDialog
 				open={open}
@@ -139,15 +137,7 @@ const Funds = () => {
 									<InputAdornment position="start">
 										$
 									</InputAdornment>
-								),
-								inputProps: {
-									min: 1,
-									max:
-										selection === 'deposit'
-											? 100
-											: user.balance,
-									step: 1
-								}
+								)
 							}
 						}}
 					/>

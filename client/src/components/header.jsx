@@ -20,7 +20,7 @@ const Header = () => {
 				<Logo />
 				{user && (
 					<Stack direction="row" alignItems="center" spacing={4}>
-						<Typography variant='body1'>Current Balance: ${user.balance}</Typography>
+						{/* <Typography variant='body1'>Current Balance: ${user.balance}</Typography> */}
 						<Typography variant='h6'>{user.username}</Typography>
 						<SignOutButton />
 					</Stack>

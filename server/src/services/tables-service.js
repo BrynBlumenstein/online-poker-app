@@ -22,16 +22,35 @@ const hostTable = (socketId, userId, username) => {
 
 	const table = {
 		id,
-		players: new Map()
+		players: new Map(),
+		/*handActive: false,*/
+		pot: 0,
+		/*sidePots: [],
+		blindAmounts: [1, 2],
+		smallBlindId: null,
+		bigBlindId: null,*/
+		currentPlayerId: null,
+		currentBet: 0,
+		minRaise: 0 /*,
+		deck: [],
+		boardCards: [],
+		bettingRound: null,
+		winners: [] */
 	};
 
 	const player = {
 		userId,
 		username,
-		socketIds: new Set([socketId])
+		socketIds: new Set(),
+		hasBoughtIn: false,
+		stack: null /*,
+		inHand: false,
+		holeCards: null,
+		currentBet: 0,
+		isAllIn: false */
 	};
-
 	table.players.set(userId, player);
+	player.socketIds.add(socketId);
 
 	tables.set(id, table);
 
@@ -53,13 +72,18 @@ const joinTable = (socketId, userId, username, tableId) => {
 		return { success: false, error: 'Table full' };
 	}
 
-	player = {
+	const player = {
 		userId,
 		username,
-		socketIds: new Set()
+		socketIds: new Set(),
+		hasBoughtIn: false,
+		stack: null,
+		inHand: false,
+		holeCards: null,
+		currentBet: 0,
+		isAllIn: false
 	};
 	table.players.set(userId, player);
-
 	player.socketIds.add(socketId);
 
 	if (disconnectTimers.has(userId)) {
@@ -104,9 +128,6 @@ const handleSocketDisconnect = (io, socket) => {
 	}
 
 	const player = table.players.get(userId);
-	if (!player) {
-		return;
-	}
 
 	if (!player.socketIds.has(socketId)) {
 		return;
@@ -155,11 +176,26 @@ const addSocketToPlayer = (table, socketId, userId) => {
 	player.socketIds.add(socketId);
 };
 
+const buyIn = (userId, amount) => {
+	const table = getCurrentTable(userId);
+	if (!table) {
+		return { success: false, error: 'Table not found' };
+	}
+
+	const player = table.players.get(userId);
+
+	player.stack = amount;
+	player.hasBoughtIn = true;
+
+	return { success: true, table };
+};
+
 module.exports = {
 	hostTable,
 	joinTable,
 	leaveTable,
 	handleSocketDisconnect,
 	getCurrentTable,
-	addSocketToPlayer
+	addSocketToPlayer,
+	buyIn
 };

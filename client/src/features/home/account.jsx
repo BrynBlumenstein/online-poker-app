@@ -81,9 +81,9 @@ const Account = () => {
 			>
 				<Stack spacing={3}>
 					<Stack spacing={1}>
-						<DialogContentText>
+						{/* <DialogContentText>
 							Current Balance: ${user.balance}
-						</DialogContentText>
+						</DialogContentText> */}
 						<DialogContentText>
 							Lifetime Winnings: ${user.winnings}
 						</DialogContentText>

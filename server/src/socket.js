@@ -2,19 +2,28 @@ const logger = require('./utils/logger');
 const tablesService = require('./services/tables-service');
 
 const handleConnection = (socket) => {
-	const currentTable = tablesService.getCurrentTable(socket.userId);
+	const table = tablesService.getCurrentTable(socket.userId);
 
-	if (currentTable) {
-		tablesService.addSocketToPlayer(currentTable, socket.id, socket.userId);
+	if (table) {
+		tablesService.addSocketToPlayer(table, socket.id, socket.userId);
 
-		socket.join(currentTable.id);
+		socket.join(table.id);
 	}
 
-    logger.info(`Socket ${socket.id} for ${socket.username} connected`);
+	logger.info(`Socket ${socket.id} for ${socket.username} connected`);
 };
 
 const handleGetCurrentTable = (socket) => {
-	socket.emit('currentTable', tablesService.getCurrentTable(socket.userId));
+	const table = tablesService.getCurrentTable(socket.userId);
+	socket.emit(
+		'currentTable',
+		table
+			? {
+					...table,
+					players: Object.fromEntries(table.players)
+			  }
+			: null
+	);
 };
 
 const handleHostTable = (io, socket, ack) => {
@@ -32,9 +41,12 @@ const handleHostTable = (io, socket, ack) => {
 	const table = result.table;
 
 	socket.join(table.id);
-	io.to(table.id).emit('tableUpdated', table);
+	io.to(table.id).emit('tableUpdated', {
+		...table,
+		players: Object.fromEntries(table.players)
+	});
 
-    logger.info(`${socket.username} hosted table ${table.id}`);
+	logger.info(`${socket.username} hosted table ${table.id}`);
 	ack({ ok: true });
 };
 
@@ -56,9 +68,12 @@ const handleJoinTable = (io, socket, tableId, ack) => {
 	socket
 		.to(normalizedTableId)
 		.emit('playerJoined', `${socket.username} joined`);
-	io.to(normalizedTableId).emit('tableUpdated', result.table);
+	io.to(normalizedTableId).emit('tableUpdated', {
+		...result.table,
+		players: Object.fromEntries(result.table.players)
+	});
 
-    logger.info(`${socket.username} joined table ${result.table.id}`);
+	logger.info(`${socket.username} joined table ${result.table.id}`);
 	ack({ ok: true });
 };
 
@@ -78,9 +93,12 @@ const handleLeaveTable = (io, socket, tableId, ack) => {
 	}
 
 	socket.to(tableId).emit('playerLeft', `${socket.username} left`);
-	io.to(tableId).emit('tableUpdated', result.table);
+	io.to(tableId).emit('tableUpdated', {
+		...result.table,
+		players: Object.fromEntries(result.table.players)
+	});
 
-    logger.info(`${socket.username} left table ${tableId}`);
+	logger.info(`${socket.username} left table ${tableId}`);
 	ack({ ok: true });
 };
 
@@ -89,29 +107,51 @@ const handleSignOut = (io, socket) => {
 		(s) => s.userId === socket.userId
 	);
 
-	const currentTable = tablesService.getCurrentTable(socket.userId);
-	if (currentTable) {
-		const result = tablesService.leaveTable(socket.userId, currentTable.id);
+	const table = tablesService.getCurrentTable(socket.userId);
+	if (table) {
+		const result = tablesService.leaveTable(socket.userId, table.id);
 
 		for (const s of playerSockets) {
-			s.leave(currentTable.id);
+			s.leave(table.id);
 		}
 
-        socket.to(currentTable.id).emit('playerLeft', `${socket.username} left`);
+		socket.to(table.id).emit('playerLeft', `${socket.username} left`);
 
-		io.to(currentTable.id).emit('tableUpdated', result.table);
+		io.to(table.id).emit('tableUpdated', {
+			...result.table,
+			players: Object.fromEntries(result.table.players)
+		});
 	}
 
 	for (const s of playerSockets) {
 		s.disconnect(true);
 	}
 
-    logger.info(`${socket.username} signed out`);
+	logger.info(`${socket.username} signed out`);
+};
+
+const handleBuyIn = (io, socket, amount, ack) => {
+	const result = tablesService.buyIn(socket.userId, amount);
+	if (!result.success) {
+		ack({ error: result.error });
+		return;
+	}
+
+	socket
+		.to(result.table.id)
+		.emit('playerBoughtIn', `${socket.username} bought in for $${amount}`);
+	io.to(result.table.id).emit('tableUpdated', {
+		...result.table,
+		players: Object.fromEntries(result.table.players)
+	});
+
+	logger.info(`${socket.username} bought in for $${amount}`);
+	ack({ ok: true });
 };
 
 const handleDisconnect = (io, socket) => {
 	tablesService.handleSocketDisconnect(io, socket);
-    logger.info(`Socket ${socket.id} for ${socket.username} disconnected`);
+	logger.info(`Socket ${socket.id} for ${socket.username} disconnected`);
 };
 
 const registerSocketHandlers = (io) => {
@@ -131,6 +171,10 @@ const registerSocketHandlers = (io) => {
 		);
 
 		socket.on('signOut', () => handleSignOut(io, socket));
+
+		socket.on('buyIn', (amount, ack) =>
+			handleBuyIn(io, socket, amount, ack)
+		);
 
 		socket.on('disconnect', () => handleDisconnect(io, socket));
 	});
