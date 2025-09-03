@@ -23,19 +23,19 @@ const hostTable = (socketId, userId, username) => {
 	const table = {
 		id,
 		players: new Map(),
-		/*handActive: false,*/
+		handActive: false,
 		pot: 0,
-		/*sidePots: [],
-		blindAmounts: [1, 2],
+		sidePots: [],
+		blindAmounts: [0.25, 0.5],
 		smallBlindId: null,
-		bigBlindId: null,*/
+		bigBlindId: null,
 		currentPlayerId: null,
 		currentBet: 0,
-		minRaise: 0 /*,
+		minRaise: 0,
 		deck: [],
 		boardCards: [],
 		bettingRound: null,
-		winners: [] */
+		winners: []
 	};
 
 	const player = {
@@ -43,11 +43,11 @@ const hostTable = (socketId, userId, username) => {
 		username,
 		socketIds: new Set(),
 		hasBoughtIn: false,
-		stack: null /*,
+		stack: 0,
 		inHand: false,
-		holeCards: null,
+		holeCards: [],
 		currentBet: 0,
-		isAllIn: false */
+		isAllIn: false
 	};
 	table.players.set(userId, player);
 	player.socketIds.add(socketId);
@@ -190,6 +190,58 @@ const buyIn = (userId, amount) => {
 	return { success: true, table };
 };
 
+const fold = (userId) => {
+	const table = getCurrentTable(userId);
+	if (!table) {
+		return { success: false, error: 'Table not found' };
+	}
+
+	const player = table.players.get(userId);
+
+	// TODO
+
+	return { success: true, table };
+};
+
+const call = (userId) => {
+	const table = getCurrentTable(userId);
+	if (!table) {
+		return { success: false, error: 'Table not found' };
+	}
+
+	const player = table.players.get(userId);
+
+	// TODO
+
+	return { success: true, table };
+};
+
+const raise = (userId, amount) => {
+	const table = getCurrentTable(userId);
+	if (!table) {
+		return { success: false, error: 'Table not found' };
+	}
+
+	const player = table.players.get(userId);
+
+	// TODO
+
+	return { success: true, table };
+};
+
+const allIn = (userId, amount) => {
+	const table = getCurrentTable(userId);
+	if (!table) {
+		return { success: false, error: 'Table not found' };
+	}
+
+	const player = table.players.get(userId);
+
+	// TODO
+
+	return { success: true, table };
+};
+
 module.exports = {
 	hostTable,
 	joinTable,
@@ -197,5 +249,9 @@ module.exports = {
 	handleSocketDisconnect,
 	getCurrentTable,
 	addSocketToPlayer,
-	buyIn
+	buyIn,
+	fold,
+	call,
+	raise,
+	allIn
 };

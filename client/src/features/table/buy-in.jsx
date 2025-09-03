@@ -9,6 +9,9 @@ import useTable from '../../contexts/table/use-table';
 import useAuth from '../../contexts/auth/use-auth';
 import useSnackbar from '../../contexts/snackbar/use-snackbar';
 
+const MIN_BUY_IN = 20;
+const MAX_BUY_IN = 50;
+
 const BuyIn = () => {
 	const { table, buyIn } = useTable();
 	const { user } = useAuth();
@@ -35,8 +38,8 @@ const BuyIn = () => {
 			return;
 		}
 
-		if (amount < 80 || amount > 300) {
-			showSnackbar('Invalid amount', 'error');
+		if (amount < MIN_BUY_IN || amount > MAX_BUY_IN) {
+			showSnackbar('Amount not in buy-in range', 'error');
 			return;
 		}
 
@@ -66,7 +69,7 @@ const BuyIn = () => {
 			open={open}
 			handleClose={() => {}}
 			handleSubmit={handleSubmit}
-			title={'Buy In'}
+			title={'Buy-In'}
 		>
 			<Stack spacing={3}>
 				<TextField
@@ -76,7 +79,7 @@ const BuyIn = () => {
 					required
 					value={amount}
 					onChange={handleAmountChange}
-					helperText="Enter a whole dollar amount from $80 to $300"
+					helperText={`Enter a whole dollar amount from $${MIN_BUY_IN} to $${MAX_BUY_IN}`}
 					slotProps={{
 						input: {
 							startAdornment: (
@@ -89,7 +92,7 @@ const BuyIn = () => {
 				/>
 			</Stack>
 			<DialogActions>
-				<Button type="submit">Buy In</Button>
+				<Button type="submit">Buy-In</Button>
 			</DialogActions>
 		</TableDialog>
 	);

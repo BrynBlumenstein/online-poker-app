@@ -32,6 +32,10 @@ const TableProvider = ({ children }) => {
 		socket.on('playerJoined', showSnackbar);
 		socket.on('playerLeft', showSnackbar);
 		socket.on('playerBoughtIn', showSnackbar);
+		socket.on('playerFolded', showSnackbar);
+		socket.on('playerCalled', showSnackbar);
+		socket.on('playerRaised', showSnackbar);
+		socket.on('playerWentAllIn', showSnackbar);
 		socket.on('currentTable', onCurrentTable);
 		socket.on('tableUpdated', onTableUpdated);
 
@@ -41,6 +45,11 @@ const TableProvider = ({ children }) => {
 		return () => {
 			socket.off('playerJoined', showSnackbar);
 			socket.off('playerLeft', showSnackbar);
+			socket.on('playerBoughtIn', showSnackbar);
+			socket.off('playerFolded', showSnackbar);
+			socket.off('playerCalled', showSnackbar);
+			socket.off('playerRaised', showSnackbar);
+			socket.off('playerWentAllIn', showSnackbar);
 			socket.off('currentTable', onCurrentTable);
 			socket.off('tableUpdated');
 		};
@@ -179,14 +188,6 @@ const TableProvider = ({ children }) => {
 		});
 	};
 
-	/* const updateTable = (updates, replace = false) => {
-		if (replace) {
-			setTable(updates);
-		} else {
-			setTable((prev) => ({ ...prev, ...updates }));
-		}
-	}; */
-
 	return (
 		<TableContext.Provider
 			value={{
@@ -201,7 +202,6 @@ const TableProvider = ({ children }) => {
 				call,
 				raise,
 				allIn
-				// updateTable
 			}}
 		>
 			{children}

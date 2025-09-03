@@ -2,15 +2,18 @@ const logger = require('./utils/logger');
 const tablesService = require('./services/tables-service');
 
 const handleConnection = (socket) => {
+	logger.info(`Socket ${socket.id} for ${socket.username} connected`);
+
 	const table = tablesService.getCurrentTable(socket.userId);
 
 	if (table) {
 		tablesService.addSocketToPlayer(table, socket.id, socket.userId);
 
 		socket.join(table.id);
+		logger.info(
+			`Socket ${socket.id} for ${socket.username} joined room ${table.id}`
+		);
 	}
-
-	logger.info(`Socket ${socket.id} for ${socket.username} connected`);
 };
 
 const handleGetCurrentTable = (socket) => {
@@ -41,6 +44,10 @@ const handleHostTable = (io, socket, ack) => {
 	const table = result.table;
 
 	socket.join(table.id);
+	logger.info(
+		`Socket ${socket.id} for ${socket.username} joined room ${table.id}`
+	);
+
 	io.to(table.id).emit('tableUpdated', {
 		...table,
 		players: Object.fromEntries(table.players)
@@ -65,6 +72,10 @@ const handleJoinTable = (io, socket, tableId, ack) => {
 	}
 
 	socket.join(normalizedTableId);
+	logger.info(
+		`Socket ${socket.id} for ${socket.username} joined room ${normalizedTableId}`
+	);
+
 	socket
 		.to(normalizedTableId)
 		.emit('playerJoined', `${socket.username} joined`);
@@ -149,6 +160,82 @@ const handleBuyIn = (io, socket, amount, ack) => {
 	ack({ ok: true });
 };
 
+const handleFold = (io, socket, ack) => {
+	const result = tablesService.fold(socket.userId);
+	if (!result.success) {
+		ack({ error: result.error });
+		return;
+	}
+
+	socket
+		.to(result.table.id)
+		.emit('playerFolded', `${socket.username} folded`);
+	io.to(result.table.id).emit('tableUpdated', {
+		...result.table,
+		players: Object.fromEntries(result.table.players)
+	});
+
+	logger.info(`${socket.username} folded`);
+	ack({ ok: true });
+};
+
+const handleCall = (io, socket, ack) => {
+	const result = tablesService.call(socket.userId);
+	if (!result.success) {
+		ack({ error: result.error });
+		return;
+	}
+
+	socket
+		.to(result.table.id)
+		.emit('playerCalled', `${socket.username} called`);
+	io.to(result.table.id).emit('tableUpdated', {
+		...result.table,
+		players: Object.fromEntries(result.table.players)
+	});
+
+	logger.info(`${socket.username} called`);
+	ack({ ok: true });
+};
+
+const handleRaise = (io, socket, amount, ack) => {
+	const result = tablesService.call(socket.userId, amount);
+	if (!result.success) {
+		ack({ error: result.error });
+		return;
+	}
+
+	socket
+		.to(result.table.id)
+		.emit('playerRaised', `${socket.username} raised to $${amount}`);
+	io.to(result.table.id).emit('tableUpdated', {
+		...result.table,
+		players: Object.fromEntries(result.table.players)
+	});
+
+	logger.info(`${socket.username} raised to $${amount}`);
+	ack({ ok: true });
+};
+
+const handleAllIn = (io, socket, amount, ack) => {
+	const result = tablesService.allIn(socket.userId, amount);
+	if (!result.success) {
+		ack({ error: result.error });
+		return;
+	}
+
+	socket
+		.to(result.table.id)
+		.emit('playerWentAllIn', `${socket.username} went all in for $${amount}`);
+	io.to(result.table.id).emit('tableUpdated', {
+		...result.table,
+		players: Object.fromEntries(result.table.players)
+	});
+
+	logger.info(`${socket.username} went all in for $${amount}`);
+	ack({ ok: true });
+};
+
 const handleDisconnect = (io, socket) => {
 	tablesService.handleSocketDisconnect(io, socket);
 	logger.info(`Socket ${socket.id} for ${socket.username} disconnected`);
@@ -174,6 +261,22 @@ const registerSocketHandlers = (io) => {
 
 		socket.on('buyIn', (amount, ack) =>
 			handleBuyIn(io, socket, amount, ack)
+		);
+
+		socket.on('fold', (ack) =>
+			handleFold(io, socket, ack)
+		);
+
+		socket.on('call', (ack) =>
+			handleCall(io, socket, ack)
+		);
+
+		socket.on('raise', (amount, ack) =>
+			handleRaise(io, socket, amount, ack)
+		);
+
+		socket.on('allIn', (amount, ack) =>
+			handleAllIn(io, socket, amount, ack)
 		);
 
 		socket.on('disconnect', () => handleDisconnect(io, socket));

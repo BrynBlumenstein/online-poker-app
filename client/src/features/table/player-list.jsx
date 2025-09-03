@@ -21,7 +21,7 @@ const PlayerList = () => {
 								secondary={
 									player.hasBoughtIn
 										? `Stack: $${player.stack}`
-										: 'Has not bought in'
+										: 'Has not bought in yet'
 								}
 							/>
 						</ListItem>
