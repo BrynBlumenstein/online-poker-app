@@ -2,7 +2,7 @@ import Stack from '@mui/material/Stack';
 import TileRow from '../features/home/tile-row';
 import Host from '../features/home/host';
 import Join from '../features/home/join';
-import Funds from '../features/home/funds';
+// import Funds from '../features/home/funds';
 import Account from '../features/home/account';
 import Users from '../features/home/users';
 
@@ -12,7 +12,7 @@ const Home = () => {
 			<TileRow>
 				<Host />
 				<Join />
-				<Funds />
+				{/* <Funds /> */}
 			</TileRow>
 			<TileRow>
 				<Account />

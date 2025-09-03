@@ -1,13 +1,13 @@
 const { User } = require('../models/index');
 const returnError = require('../utils/return-error');
 const {
-	isValidBalanceUpdate,
+	// isValidBalanceUpdate,
 	isValidUsernameUpdate,
 	isValidFollowingUpdate
 } = require('../utils/validation-utils');
 const usersRouter = require('express').Router();
 
-usersRouter.patch('/balance', async (req, res) => {
+/* usersRouter.patch('/balance', async (req, res) => {
 	const id = req.userId;
 
 	if (!isValidBalanceUpdate(req.body)) {
@@ -29,7 +29,7 @@ usersRouter.patch('/balance', async (req, res) => {
 	} catch (err) {
 		returnError(res, 500, 'Failed to update balance');
 	}
-});
+}); */
 
 usersRouter.patch('/username', async (req, res) => {
 	const id = req.userId;

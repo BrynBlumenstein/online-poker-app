@@ -18,16 +18,10 @@ const User = sequelize.define(
 			type: DataTypes.STRING,
 			allowNull: false
 		},
-		balance: {
-			type: DataTypes.INTEGER,
-			allowNull: false,
-			defaultValue: 0,
-			validate: { min: 0 }
-		},
 		winnings: {
-			type: DataTypes.INTEGER,
+			type: DataTypes.DECIMAL(10, 2),
 			allowNull: false,
-			defaultValue: 0
+			defaultValue: 0.00
 		},
 		hands_won: {
 			type: DataTypes.INTEGER,

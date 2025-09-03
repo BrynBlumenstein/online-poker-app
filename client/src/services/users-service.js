@@ -16,13 +16,13 @@ const getRequest = async (endpoint, token) => {
 	return response.data;
 };
 
-const updateBalance = async (newBalance, token) => {
+/* const updateBalance = async (newBalance, token) => {
 	try {
 		return await patchRequest('balance', { balance: newBalance }, token);
 	} catch (err) {
 		throwError(err, 'Failed to update balance');
 	}
-};
+}; */
 
 const updateUsername = async (newUsername, token) => {
 	try {
@@ -84,7 +84,7 @@ const getCurrentUser = async (token) => {
 };
 
 export default {
-	updateBalance,
+	// updateBalance,
 	updateUsername,
 	getAllUsers,
 	getFollowing,

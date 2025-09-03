@@ -44,12 +44,12 @@ const isValidCredentials = (credentials) => {
 	);
 };
 
-const isValidBalanceUpdate = (obj) => {
+/* const isValidBalanceUpdate = (obj) => {
 	if (!hasExactKeys(obj, ['balance'])) {
 		return false;
 	}
 	return Number.isInteger(obj.balance) && obj.balance >= 0;
-}
+} */
 
 const isValidUsernameUpdate = (obj) => {
 	if (!hasExactKeys(obj, ['username'])) {
@@ -82,7 +82,7 @@ const isValidTableRequest = (obj) => {
 module.exports = {
 	isValidId,
 	isValidCredentials,
-	isValidBalanceUpdate,
+	// isValidBalanceUpdate,
 	isValidUsernameUpdate,
 	isValidFollowingUpdate,
 	isValidTableRequest
