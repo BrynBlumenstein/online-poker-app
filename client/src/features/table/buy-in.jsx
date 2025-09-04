@@ -20,7 +20,7 @@ const BuyIn = () => {
 	const [amount, setAmount] = useState('');
 
 	useEffect(() => {
-		if (!table.players[user.id].hasBoughtIn) {
+		if (!table.players.get(user.id).hasBoughtIn) {
 			setOpen(true);
 		}
 	}, [table.players, user.id]);
@@ -28,7 +28,7 @@ const BuyIn = () => {
 	const handleSubmit = (event) => {
 		event.preventDefault();
 
-		if (table.players[user.id].hasBoughtIn) {
+		if (table.players.get(user.id).hasBoughtIn) {
 			showSnackbar('Already bought in', 'error');
 			return;
 		}

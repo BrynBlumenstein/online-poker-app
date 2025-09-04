@@ -7,7 +7,7 @@ const AllIn = ({ disabled }) => {
 	const { table, allIn } = useTable();
 
 	const handleClick = () => {
-		allIn(table.players[user.id].stack);
+		allIn(table.players.get(user.id).stack);
 	};
 
 	return (

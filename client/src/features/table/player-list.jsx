@@ -13,7 +13,7 @@ const PlayerList = () => {
 		<Paper>
 			<List>
 				<Divider variant="middle" />
-				{Object.values(table.players).map((player) => (
+				{Array.from(table.players.values()).map((player) => (
 					<React.Fragment key={player.userId}>
 						<ListItem>
 							<ListItemText

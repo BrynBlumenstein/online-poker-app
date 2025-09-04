@@ -21,12 +21,20 @@ const TableProvider = ({ children }) => {
 		}
 
 		const onCurrentTable = (tableData) => {
-			setTable(tableData || null);
+			setTable(
+				tableData
+					? { ...tableData, players: new Map(tableData.players) }
+					: null
+			);
 			setFetchingTable(false);
 		};
 
 		const onTableUpdated = (tableData) => {
-			setTable(tableData);
+			setTable(
+				tableData
+					? { ...tableData, players: new Map(tableData.players) }
+					: null
+			);
 		};
 
 		socket.on('playerJoined', showSnackbar);

@@ -25,19 +25,12 @@ const hostTable = (socketId, userId, username) => {
 		blindAmounts: [0.25, 0.5],
 		players: new Map(),
 		handActive: false,
-		street: null,
 		pot: 0,
-		sidePots: [],
 		dealerId: null,
 		smallBlindId: null,
 		bigBlindId: null,
 		currentPlayerId: null,
-		currentBet: 0,
 		minRaise: 0,
-		deck: [],
-		boardCards: [],
-		bettingRound: null,
-		winners: []
 	};
 
 	const player = {
@@ -46,10 +39,6 @@ const hostTable = (socketId, userId, username) => {
 		socketIds: new Set(),
 		hasBoughtIn: false,
 		stack: 0,
-		inHand: false,
-		holeCards: [],
-		currentBet: 0,
-		isAllIn: false
 	};
 	table.players.set(userId, player);
 	player.socketIds.add(socketId);

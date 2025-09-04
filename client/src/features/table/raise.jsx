@@ -40,12 +40,12 @@ const Raise = ({ disabled }) => {
 			return;
 		}
 
-		if (amount > table.players[user.id].stack) {
+		if (amount > table.players.get(user.id).stack) {
 			showSnackbar('You cannot raise more than you have', 'error');
 			return;
 		}
 
-		if (amount === table.players[user.id].stack) {
+		if (amount === table.players.get(user.id).stack) {
 			showSnackbar('Go all in', 'error');
 			return;
 		}

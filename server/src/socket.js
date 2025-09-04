@@ -23,7 +23,7 @@ const handleGetCurrentTable = (socket) => {
 		table
 			? {
 					...table,
-					players: Object.fromEntries(table.players)
+					players: Array.from(table.players.entries())
 			  }
 			: null
 	);
@@ -50,7 +50,7 @@ const handleHostTable = (io, socket, ack) => {
 
 	io.to(table.id).emit('tableUpdated', {
 		...table,
-		players: Object.fromEntries(table.players)
+		players: Array.from(table.players.entries())
 	});
 
 	logger.info(`${socket.username} hosted table ${table.id}`);
@@ -81,7 +81,7 @@ const handleJoinTable = (io, socket, tableId, ack) => {
 		.emit('playerJoined', `${socket.username} joined`);
 	io.to(normalizedTableId).emit('tableUpdated', {
 		...result.table,
-		players: Object.fromEntries(result.table.players)
+		players: Array.from(result.table.players.entries())
 	});
 
 	logger.info(`${socket.username} joined table ${result.table.id}`);
@@ -106,7 +106,7 @@ const handleLeaveTable = (io, socket, tableId, ack) => {
 	socket.to(tableId).emit('playerLeft', `${socket.username} left`);
 	io.to(tableId).emit('tableUpdated', {
 		...result.table,
-		players: Object.fromEntries(result.table.players)
+		players: Array.from(result.table.players.entries())
 	});
 
 	logger.info(`${socket.username} left table ${tableId}`);
@@ -130,7 +130,7 @@ const handleSignOut = (io, socket) => {
 
 		io.to(table.id).emit('tableUpdated', {
 			...result.table,
-			players: Object.fromEntries(result.table.players)
+			players: Array.from(result.table.players.entries())
 		});
 	}
 
@@ -153,7 +153,7 @@ const handleBuyIn = (io, socket, amount, ack) => {
 		.emit('playerBoughtIn', `${socket.username} bought in for $${amount}`);
 	io.to(result.table.id).emit('tableUpdated', {
 		...result.table,
-		players: Object.fromEntries(result.table.players)
+		players: Array.from(result.table.players.entries())
 	});
 
 	logger.info(`${socket.username} bought in for $${amount}`);
@@ -172,7 +172,7 @@ const handleFold = (io, socket, ack) => {
 		.emit('playerFolded', `${socket.username} folded`);
 	io.to(result.table.id).emit('tableUpdated', {
 		...result.table,
-		players: Object.fromEntries(result.table.players)
+		players: Array.from(result.table.players.entries())
 	});
 
 	logger.info(`${socket.username} folded`);
@@ -191,7 +191,7 @@ const handleCheck = (io, socket, ack) => {
 		.emit('playerChecked', `${socket.username} checked`);
 	io.to(result.table.id).emit('tableUpdated', {
 		...result.table,
-		players: Object.fromEntries(result.table.players)
+		players: Array.from(result.table.players.entries())
 	});
 
 	logger.info(`${socket.username} checked`);
@@ -210,7 +210,7 @@ const handleCall = (io, socket, ack) => {
 		.emit('playerCalled', `${socket.username} called`);
 	io.to(result.table.id).emit('tableUpdated', {
 		...result.table,
-		players: Object.fromEntries(result.table.players)
+		players: Array.from(result.table.players.entries())
 	});
 
 	logger.info(`${socket.username} called`);
@@ -229,7 +229,7 @@ const handleRaise = (io, socket, amount, ack) => {
 		.emit('playerRaised', `${socket.username} raised to $${amount}`);
 	io.to(result.table.id).emit('tableUpdated', {
 		...result.table,
-		players: Object.fromEntries(result.table.players)
+		players: Array.from(result.table.players.entries())
 	});
 
 	logger.info(`${socket.username} raised to $${amount}`);
@@ -251,7 +251,7 @@ const handleAllIn = (io, socket, amount, ack) => {
 		);
 	io.to(result.table.id).emit('tableUpdated', {
 		...result.table,
-		players: Object.fromEntries(result.table.players)
+		players: Array.from(result.table.players.entries())
 	});
 
 	logger.info(`${socket.username} went all in for $${amount}`);
@@ -269,7 +269,7 @@ const handleStartHand = (io, socket, ack) => {
 		.emit('handStarted', `${socket.username} started the hand`);
 	io.to(result.table.id).emit('tableUpdated', {
 		...result.table,
-		players: Object.fromEntries(result.table.players)
+		players: Array.from(result.table.players.entries())
 	});
 
 	logger.info(`${socket.username} started the hand`);
