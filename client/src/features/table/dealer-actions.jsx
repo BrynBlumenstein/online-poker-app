@@ -11,7 +11,7 @@ const DealerActions = () => {
 
 	useEffect(() => {
 		if (table.dealerId !== user.id) {
-			setActionsDisabled(true);
+			setActionsDisabled(false);
 		}
 	}, [table.dealerId, user.id]);
 

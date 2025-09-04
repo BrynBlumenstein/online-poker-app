@@ -3,6 +3,7 @@ import useAuth from '../../contexts/auth/use-auth';
 import useTable from '../../contexts/table/use-table';
 import Stack from '@mui/material/Stack';
 import Fold from './fold';
+import Check from './check';
 import Call from './call';
 import Raise from './raise';
 import AllIn from './all-in';
@@ -14,13 +15,14 @@ const PlayerActions = () => {
 
 	useEffect(() => {
 		if (table.currentPlayerId !== user.id) {
-			setActionsDisabled(true);
+			setActionsDisabled(false);
 		}
 	}, [table.currentPlayerId, user.id]);
 
 	return (
 		<Stack direction="row" justifyContent="center" spacing={3}>
 			<Fold disabled={actionsDisabled} />
+			<Check disabled={actionsDisabled} />
 			<Call disabled={actionsDisabled} />
 			<Raise disabled={actionsDisabled} />
 			<AllIn disabled={actionsDisabled} />

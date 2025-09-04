@@ -33,6 +33,7 @@ const TableProvider = ({ children }) => {
 		socket.on('playerLeft', showSnackbar);
 		socket.on('playerBoughtIn', showSnackbar);
 		socket.on('playerFolded', showSnackbar);
+		socket.on('playerChecked', showSnackbar);
 		socket.on('playerCalled', showSnackbar);
 		socket.on('playerRaised', showSnackbar);
 		socket.on('playerWentAllIn', showSnackbar);
@@ -46,8 +47,9 @@ const TableProvider = ({ children }) => {
 		return () => {
 			socket.off('playerJoined', showSnackbar);
 			socket.off('playerLeft', showSnackbar);
-			socket.on('playerBoughtIn', showSnackbar);
+			socket.off('playerBoughtIn', showSnackbar);
 			socket.off('playerFolded', showSnackbar);
+			socket.off('playerChecked', showSnackbar);
 			socket.off('playerCalled', showSnackbar);
 			socket.off('playerRaised', showSnackbar);
 			socket.off('playerWentAllIn', showSnackbar);
@@ -145,6 +147,21 @@ const TableProvider = ({ children }) => {
 		});
 	};
 
+	const check = () => {
+		if (!socket || !connected) {
+			showSnackbar('Not connected', 'error');
+		}
+
+		socket.emit('check', (res) => {
+			if (res?.error) {
+				showSnackbar(res.error, 'error');
+				return;
+			}
+
+			showSnackbar('Checked');
+		});
+	};
+
 	const call = () => {
 		if (!socket || !connected) {
 			showSnackbar('Not connected', 'error');
@@ -216,6 +233,7 @@ const TableProvider = ({ children }) => {
 				signOut,
 				buyIn,
 				fold,
+				check,
 				call,
 				raise,
 				allIn,

@@ -205,6 +205,19 @@ const fold = (userId) => {
 	return { success: true, table };
 };
 
+const check = (userId) => {
+	const table = getCurrentTable(userId);
+	if (!table) {
+		return { success: false, error: 'Table not found' };
+	}
+
+	const player = table.players.get(userId);
+
+	// TODO
+
+	return { success: true, table };
+};
+
 const call = (userId) => {
 	const table = getCurrentTable(userId);
 	if (!table) {
@@ -251,12 +264,12 @@ const startHand = (userId) => {
 	}
 
 	if (table.handActive) {
-		return ack({ error: 'Hand already in progress' });
+		return { error: 'Hand already in progress' };
 	}
 
-	if (userId !== table.dealerId) {
-		return ack({ error: 'Only dealer can start' });
-	}
+	/* if (userId !== table.dealerId) {
+		return { error: 'Only dealer can start' };
+	} */
 
 	// TODO
 
@@ -272,6 +285,7 @@ module.exports = {
 	addSocketToPlayer,
 	buyIn,
 	fold,
+	check,
 	call,
 	raise,
 	allIn,

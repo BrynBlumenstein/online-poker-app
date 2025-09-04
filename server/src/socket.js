@@ -179,6 +179,25 @@ const handleFold = (io, socket, ack) => {
 	ack({ ok: true });
 };
 
+const handleCheck = (io, socket, ack) => {
+	const result = tablesService.check(socket.userId);
+	if (!result.success) {
+		ack({ error: result.error });
+		return;
+	}
+
+	socket
+		.to(result.table.id)
+		.emit('playerChecked', `${socket.username} checked`);
+	io.to(result.table.id).emit('tableUpdated', {
+		...result.table,
+		players: Object.fromEntries(result.table.players)
+	});
+
+	logger.info(`${socket.username} checked`);
+	ack({ ok: true });
+};
+
 const handleCall = (io, socket, ack) => {
 	const result = tablesService.call(socket.userId);
 	if (!result.success) {
@@ -246,7 +265,7 @@ const handleStartHand = (io, socket, ack) => {
 	}
 
 	socket
-		.to(table.id)
+		.to(result.table.id)
 		.emit('handStarted', `${socket.username} started the hand`);
 	io.to(result.table.id).emit('tableUpdated', {
 		...result.table,
@@ -285,6 +304,8 @@ const registerSocketHandlers = (io) => {
 		);
 
 		socket.on('fold', (ack) => handleFold(io, socket, ack));
+
+		socket.on('check', (ack) => handleCheck(io, socket, ack));
 
 		socket.on('call', (ack) => handleCall(io, socket, ack));
 
