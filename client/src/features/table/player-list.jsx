@@ -9,11 +9,40 @@ import useTable from '../../contexts/table/use-table';
 const PlayerList = () => {
 	const { table } = useTable();
 
+	let emptySeats = 0;
+
 	return (
 		<Paper>
 			<List>
 				<Divider variant="middle" />
-				{Array.from(table.players.values()).map((player) => (
+				{table.seats.map((userId) =>
+					userId ? (
+						<React.Fragment key={userId}>
+							<ListItem>
+								<ListItemText
+									primary={table.players.get(userId).username}
+									secondary={
+										table.players.get(userId).hasBoughtIn
+											? `Stack: $${
+													table.players.get(userId)
+														.stack
+											  }`
+											: 'Has not bought in yet'
+									}
+								/>
+							</ListItem>
+							<Divider variant="middle" />
+						</React.Fragment>
+					) : (
+						<React.Fragment key={emptySeats++}>
+							<ListItem>
+								<ListItemText primary="Seat empty" />
+							</ListItem>
+							<Divider variant="middle" />
+						</React.Fragment>
+					)
+				)}
+				{/* {Array.from(table.players.values()).map((player) => (
 					<React.Fragment key={player.userId}>
 						<ListItem>
 							<ListItemText
@@ -27,7 +56,7 @@ const PlayerList = () => {
 						</ListItem>
 						<Divider variant="middle" />
 					</React.Fragment>
-				))}
+				))} */}
 			</List>
 		</Paper>
 	);

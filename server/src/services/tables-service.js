@@ -24,13 +24,14 @@ const hostTable = (socketId, userId, username) => {
 		id,
 		blindAmounts: [0.25, 0.5],
 		players: new Map(),
+		seats: Array(MAX_PLAYERS).fill(null),
 		handActive: false,
 		pot: 0,
 		dealerId: null,
 		smallBlindId: null,
 		bigBlindId: null,
 		currentPlayerId: null,
-		minRaise: 0,
+		minRaise: 0
 	};
 
 	const player = {
@@ -38,9 +39,10 @@ const hostTable = (socketId, userId, username) => {
 		username,
 		socketIds: new Set(),
 		hasBoughtIn: false,
-		stack: 0,
+		stack: 0
 	};
 	table.players.set(userId, player);
+	table.seats[0] = userId;
 	player.socketIds.add(socketId);
 
 	tables.set(id, table);
@@ -63,6 +65,11 @@ const joinTable = (socketId, userId, username, tableId) => {
 		return { success: false, error: 'Table full' };
 	}
 
+	const seatIndex = table.seats.indexOf(null);
+	if (seatIndex === -1) {
+		return { success: false, error: 'No seat available' };
+	}
+
 	const player = {
 		userId,
 		username,
@@ -75,6 +82,7 @@ const joinTable = (socketId, userId, username, tableId) => {
 		isAllIn: false
 	};
 	table.players.set(userId, player);
+	table.seats[seatIndex] = userId;
 	player.socketIds.add(socketId);
 
 	if (disconnectTimers.has(userId)) {
@@ -93,12 +101,17 @@ const leaveTable = (userId, tableId) => {
 
 	const player = table.players.get(userId);
 	if (!player) {
-		return { success: false, error: 'Player not in table' };
+		return { success: false, error: 'Player not at table' };
 	}
 
 	if (disconnectTimers.has(userId)) {
 		clearTimeout(disconnectTimers.get(userId));
 		disconnectTimers.delete(userId);
+	}
+
+	const seatIndex = table.seats.indexOf(userId);
+	if (seatIndex !== -1) {
+		table.seats[seatIndex] = null;
 	}
 
 	table.players.delete(userId);
@@ -141,6 +154,11 @@ const handleSocketDisconnect = (io, socket) => {
 		const stillPlayer = stillTable.players.get(userId);
 		if (!stillPlayer || stillPlayer.socketIds.size > 0) {
 			return;
+		}
+
+		const seatIndex = stillTable.seats.indexOf(userId);
+		if (seatIndex !== -1) {
+			table.seats[seatIndex] = null;
 		}
 
 		stillTable.players.delete(userId);
