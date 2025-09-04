@@ -2,6 +2,8 @@ import React from 'react';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
+import ListItemAvatar from '@mui/material/ListItemAvatar';
+import Avatar from '@mui/material/Avatar';
 import Paper from '@mui/material/Paper';
 import Divider from '@mui/material/Divider';
 import useTable from '../../contexts/table/use-table';
@@ -15,21 +17,34 @@ const PlayerList = () => {
 		<Paper>
 			<List>
 				<Divider variant="middle" />
-				{table.seats.map((userId) =>
-					userId ? (
+				{table.seats.map((userId, index) => {
+					const player = table.players.get(userId);
+					return userId ? (
 						<React.Fragment key={userId}>
 							<ListItem>
 								<ListItemText
-									primary={table.players.get(userId).username}
+									primary={player.username}
 									secondary={
-										table.players.get(userId).hasBoughtIn
-											? `Stack: $${
-													table.players.get(userId)
-														.stack
-											  }`
+										player.hasBoughtIn
+											? `Stack: $${player.stack}`
 											: 'Has not bought in yet'
 									}
 								/>
+								{index === table.dealerIndex && (
+									<ListItemAvatar>
+										<Avatar>D</Avatar>
+									</ListItemAvatar>
+								)}
+								{index === table.smallBlindIndex && (
+									<ListItemAvatar>
+										<Avatar>SB</Avatar>
+									</ListItemAvatar>
+								)}
+								{index === table.bigBlindIndex && (
+									<ListItemAvatar>
+										<Avatar>BB</Avatar>
+									</ListItemAvatar>
+								)}
 							</ListItem>
 							<Divider variant="middle" />
 						</React.Fragment>
@@ -40,8 +55,8 @@ const PlayerList = () => {
 							</ListItem>
 							<Divider variant="middle" />
 						</React.Fragment>
-					)
-				)}
+					);
+				})}
 				{/* {Array.from(table.players.values()).map((player) => (
 					<React.Fragment key={player.userId}>
 						<ListItem>

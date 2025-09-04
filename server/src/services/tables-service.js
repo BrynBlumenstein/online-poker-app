@@ -27,10 +27,11 @@ const hostTable = (socketId, userId, username) => {
 		seats: Array(MAX_PLAYERS).fill(null),
 		handActive: false,
 		pot: 0,
-		dealerId: null,
-		smallBlindId: null,
-		bigBlindId: null,
-		currentPlayerId: null,
+		deck: [],
+		dealerIndex: 0,
+		smallBlindIndex: -1,
+		bigBlindIndex: -1,
+		currentPlayerIndex: -1,
 		minRaise: 0
 	};
 
@@ -39,7 +40,9 @@ const hostTable = (socketId, userId, username) => {
 		username,
 		socketIds: new Set(),
 		hasBoughtIn: false,
-		stack: 0
+		stack: 0,
+		inHand: false,
+		holeCards: []
 	};
 	table.players.set(userId, player);
 	table.seats[0] = userId;
@@ -48,6 +51,55 @@ const hostTable = (socketId, userId, username) => {
 	tables.set(id, table);
 
 	return { success: true, table };
+};
+
+const findNextFilledSeat = (seats, startIndex) => {
+	let length = seats.length;
+	if (length === 0) {
+		return -1;
+	}
+
+	for (let offset = 1; offset <= length; offset++) {
+		const index = (startIndex + offset) % length;
+		if (seats[index] !== null) {
+			return index;
+		}
+	}
+
+	return -1;
+};
+
+const moveMarkers = (table, reason = null, playerIndex = null) => {
+	if (table.players.size === 1) {
+		table.dealerIndex = table.seats.findIndex((id) => id !== null);
+		table.smallBlindIndex = -1;
+		table.bigBlindIndex = -1;
+		return;
+	}
+
+	if (
+		reason === 'handEnded' ||
+		(reason === 'playerLeft' && playerIndex === table.dealerIndex)
+	) {
+		table.dealerIndex = findNextFilledSeat(table.seats, table.dealerIndex);
+	}
+
+	if (table.players.size === 2) {
+		table.smallBlindIndex = table.dealerIndex;
+		table.bigBlindIndex = findNextFilledSeat(
+			table.seats,
+			table.dealerIndex
+		);
+	} else {
+		table.smallBlindIndex = findNextFilledSeat(
+			table.seats,
+			table.dealerIndex
+		);
+		table.bigBlindIndex = findNextFilledSeat(
+			table.seats,
+			table.smallBlindIndex
+		);
+	}
 };
 
 const joinTable = (socketId, userId, username, tableId) => {
@@ -77,13 +129,15 @@ const joinTable = (socketId, userId, username, tableId) => {
 		hasBoughtIn: false,
 		stack: 0,
 		inHand: false,
-		holeCards: [],
-		currentBet: 0,
-		isAllIn: false
+		holeCards: []
 	};
 	table.players.set(userId, player);
 	table.seats[seatIndex] = userId;
 	player.socketIds.add(socketId);
+
+	if (!table.handActive) {
+		moveMarkers(table);
+	}
 
 	if (disconnectTimers.has(userId)) {
 		clearTimeout(disconnectTimers.get(userId));
@@ -118,6 +172,8 @@ const leaveTable = (userId, tableId) => {
 
 	if (table.players.size === 0) {
 		tables.delete(tableId);
+	} else if (!table.handActive) {
+		moveMarkers(table, 'playerLeft', seatIndex);
 	}
 
 	return { success: true, table };
@@ -163,6 +219,15 @@ const handleSocketDisconnect = (io, socket) => {
 
 		stillTable.players.delete(userId);
 		disconnectTimers.delete(userId);
+
+		if (stillTable.players.size === 0) {
+			tables.delete(stillTable.id);
+			return;
+		}
+
+		if (!stillTable.handActive) {
+			moveMarkers(stillTable, 'playerLeft', seatIndex);
+		}
 
 		socket.to(stillTable.id).emit('playerLeft', `${username} left`);
 		io.to(stillTable.id).emit('tableUpdated', stillTable);
@@ -274,11 +339,58 @@ const startHand = (userId) => {
 		return { error: 'Hand already in progress' };
 	}
 
-	/* if (userId !== table.dealerId) {
+	if (userId !== table.seats[table.dealerIndex]) {
 		return { error: 'Only dealer can start' };
-	} */
+	}
 
-	// TODO
+	table.handActive = true;
+
+	table.players.forEach((player) => {
+		player.inHand = player.hasBoughtIn;
+	});
+
+	const suits = ['hearts', 'diamonds', 'clubs', 'spades'];
+	const ranks = [
+		'2',
+		'3',
+		'4',
+		'5',
+		'6',
+		'7',
+		'8',
+		'9',
+		'10',
+		'J',
+		'Q',
+		'K',
+		'A'
+	];
+	let deck = [];
+
+	for (const suit of suits) {
+		for (const rank of ranks) {
+			deck.push({ suit, rank });
+		}
+	}
+
+	for (let i = deck.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		[deck[i], deck[j]] = [deck[j], deck[i]];
+	}
+
+	table.deck = deck;
+
+	const inHandPlayers = Array.from(table.players.values()).filter(
+		(p) => p.inHand
+	);
+
+	inHandPlayers.forEach((player) => {
+		player.holeCards = [table.deck.pop()];
+	});
+
+	inHandPlayers.forEach((player) => {
+		player.holeCards.push(table.deck.pop());
+	});
 
 	return { success: true, table };
 };

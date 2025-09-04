@@ -10,10 +10,13 @@ const DealerActions = () => {
 	const [actionsDisabled, setActionsDisabled] = useState(true);
 
 	useEffect(() => {
-		if (table.dealerId !== user.id) {
+		const dealerIndex = table.dealerIndex;
+		if (dealerIndex === -1 || table.seats[dealerIndex] !== user.id) {
+			setActionsDisabled(true);
+		} else {
 			setActionsDisabled(false);
 		}
-	}, [table.dealerId, user.id]);
+	}, [table.dealerIndex, table.seats, user.id]);
 
 	return (
 		<Stack direction="row" justifyContent="center" spacing={3}>
