@@ -199,7 +199,7 @@ const handleCall = (io, socket, ack) => {
 };
 
 const handleRaise = (io, socket, amount, ack) => {
-	const result = tablesService.call(socket.userId, amount);
+	const result = tablesService.raise(socket.userId, amount);
 	if (!result.success) {
 		ack({ error: result.error });
 		return;
@@ -226,13 +226,34 @@ const handleAllIn = (io, socket, amount, ack) => {
 
 	socket
 		.to(result.table.id)
-		.emit('playerWentAllIn', `${socket.username} went all in for $${amount}`);
+		.emit(
+			'playerWentAllIn',
+			`${socket.username} went all in for $${amount}`
+		);
 	io.to(result.table.id).emit('tableUpdated', {
 		...result.table,
 		players: Object.fromEntries(result.table.players)
 	});
 
 	logger.info(`${socket.username} went all in for $${amount}`);
+	ack({ ok: true });
+};
+
+const handleStartHand = (io, socket, ack) => {
+	const result = tablesService.startHand(socket.userId);
+	if (!result.success) {
+		return ack({ error: result.error });
+	}
+
+	socket
+		.to(table.id)
+		.emit('handStarted', `${socket.username} started the hand`);
+	io.to(result.table.id).emit('tableUpdated', {
+		...result.table,
+		players: Object.fromEntries(result.table.players)
+	});
+
+	logger.info(`${socket.username} started the hand`);
 	ack({ ok: true });
 };
 
@@ -263,13 +284,9 @@ const registerSocketHandlers = (io) => {
 			handleBuyIn(io, socket, amount, ack)
 		);
 
-		socket.on('fold', (ack) =>
-			handleFold(io, socket, ack)
-		);
+		socket.on('fold', (ack) => handleFold(io, socket, ack));
 
-		socket.on('call', (ack) =>
-			handleCall(io, socket, ack)
-		);
+		socket.on('call', (ack) => handleCall(io, socket, ack));
 
 		socket.on('raise', (amount, ack) =>
 			handleRaise(io, socket, amount, ack)
@@ -278,6 +295,8 @@ const registerSocketHandlers = (io) => {
 		socket.on('allIn', (amount, ack) =>
 			handleAllIn(io, socket, amount, ack)
 		);
+
+		socket.on('startHand', (ack) => handleStartHand(io, socket, ack));
 
 		socket.on('disconnect', () => handleDisconnect(io, socket));
 	});

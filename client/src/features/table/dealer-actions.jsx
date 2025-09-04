@@ -2,30 +2,24 @@ import { useState, useEffect } from 'react';
 import useAuth from '../../contexts/auth/use-auth';
 import useTable from '../../contexts/table/use-table';
 import Stack from '@mui/material/Stack';
-import Fold from './fold';
-import Call from './call';
-import Raise from './raise';
-import AllIn from './all-in';
+import StartHand from './start-hand';
 
-const Actions = () => {
+const DealerActions = () => {
 	const { user } = useAuth();
 	const { table } = useTable();
 	const [actionsDisabled, setActionsDisabled] = useState(true);
 
 	useEffect(() => {
-		if (table.currentPlayerId !== user.id) {
-			setActionsDisabled(false);
+		if (table.dealerId !== user.id) {
+			setActionsDisabled(true);
 		}
-	}, [table.currentPlayerId, user.id]);
+	}, [table.dealerId, user.id]);
 
 	return (
 		<Stack direction="row" justifyContent="center" spacing={3}>
-			<Fold disabled={actionsDisabled} />
-			<Call disabled={actionsDisabled} />
-			<Raise disabled={actionsDisabled} />
-			<AllIn disabled={actionsDisabled} />
+			<StartHand disabled={actionsDisabled} />
 		</Stack>
 	);
 };
 
-export default Actions;
+export default DealerActions;

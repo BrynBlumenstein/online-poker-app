@@ -22,11 +22,13 @@ const hostTable = (socketId, userId, username) => {
 
 	const table = {
 		id,
+		blindAmounts: [0.25, 0.5],
 		players: new Map(),
 		handActive: false,
+		street: null,
 		pot: 0,
 		sidePots: [],
-		blindAmounts: [0.25, 0.5],
+		dealerId: null,
 		smallBlindId: null,
 		bigBlindId: null,
 		currentPlayerId: null,
@@ -77,9 +79,9 @@ const joinTable = (socketId, userId, username, tableId) => {
 		username,
 		socketIds: new Set(),
 		hasBoughtIn: false,
-		stack: null,
+		stack: 0,
 		inHand: false,
-		holeCards: null,
+		holeCards: [],
 		currentBet: 0,
 		isAllIn: false
 	};
@@ -242,6 +244,25 @@ const allIn = (userId, amount) => {
 	return { success: true, table };
 };
 
+const startHand = (userId) => {
+	const table = getCurrentTable(userId);
+	if (!table) {
+		return { success: false, error: 'Table not found' };
+	}
+
+	if (table.handActive) {
+		return ack({ error: 'Hand already in progress' });
+	}
+
+	if (userId !== table.dealerId) {
+		return ack({ error: 'Only dealer can start' });
+	}
+
+	// TODO
+
+	return { success: true, table };
+};
+
 module.exports = {
 	hostTable,
 	joinTable,
@@ -253,5 +274,6 @@ module.exports = {
 	fold,
 	call,
 	raise,
-	allIn
+	allIn,
+	startHand
 };

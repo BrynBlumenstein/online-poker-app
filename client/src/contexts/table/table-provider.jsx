@@ -36,6 +36,7 @@ const TableProvider = ({ children }) => {
 		socket.on('playerCalled', showSnackbar);
 		socket.on('playerRaised', showSnackbar);
 		socket.on('playerWentAllIn', showSnackbar);
+		socket.on('handStarted', showSnackbar);
 		socket.on('currentTable', onCurrentTable);
 		socket.on('tableUpdated', onTableUpdated);
 
@@ -50,6 +51,7 @@ const TableProvider = ({ children }) => {
 			socket.off('playerCalled', showSnackbar);
 			socket.off('playerRaised', showSnackbar);
 			socket.off('playerWentAllIn', showSnackbar);
+			socket.off('handStarted', showSnackbar);
 			socket.off('currentTable', onCurrentTable);
 			socket.off('tableUpdated');
 		};
@@ -188,6 +190,21 @@ const TableProvider = ({ children }) => {
 		});
 	};
 
+	const startHand = () => {
+		if (!socket || !connected) {
+			showSnackbar('Not connected', 'error');
+		}
+
+		socket.emit('startHand', (res) => {
+			if (res?.error) {
+				showSnackbar(res.error, 'error');
+				return;
+			}
+
+			showSnackbar('Started hand');
+		});
+	};
+
 	return (
 		<TableContext.Provider
 			value={{
@@ -201,7 +218,8 @@ const TableProvider = ({ children }) => {
 				fold,
 				call,
 				raise,
-				allIn
+				allIn,
+				startHand
 			}}
 		>
 			{children}

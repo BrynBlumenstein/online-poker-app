@@ -3,9 +3,10 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import useTable from '../../contexts/table/use-table';
 import PlayerList from './player-list';
+import DealerActions from './dealer-actions';
 import BoardCards from './board-cards';
 import HoleCards from './hole-cards';
-import Actions from './actions';
+import PlayerActions from './player-actions';
 
 const TableContent = () => {
 	const { table } = useTable();
@@ -17,13 +18,14 @@ const TableContent = () => {
 				<Stack
 					alignItems="center"
 					justifyContent="space-between"
-					sx={{ height: '600px' }}
+					sx={{ height: '500px' }}
 				>
+					<DealerActions />
 					<Typography variant="h3">Pot: ${table.pot}</Typography>
 					<BoardCards />
 					<Stack spacing={3}>
 						<HoleCards />
-						<Actions />
+						<PlayerActions />
 					</Stack>
 				</Stack>
 			</Box>
