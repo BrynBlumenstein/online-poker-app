@@ -1,35 +1,10 @@
 const { User } = require('../models/index');
 const returnError = require('../utils/return-error');
 const {
-	// isValidBalanceUpdate,
 	isValidUsernameUpdate,
 	isValidFollowingUpdate
 } = require('../utils/validation-utils');
 const usersRouter = require('express').Router();
-
-/* usersRouter.patch('/balance', async (req, res) => {
-	const id = req.userId;
-
-	if (!isValidBalanceUpdate(req.body)) {
-		return returnError(res, 400, 'Invalid request body');
-	}
-
-	const balance = req.body.balance;
-
-	const user = await User.findByPk(id);
-	if (!user) {
-		return returnError(res, 404, 'User not found');
-	}
-
-	try {
-		user.balance = balance;
-		await user.save();
-		const { password_hash, ...userData } = user.toJSON();
-		return res.status(200).json(userData);
-	} catch (err) {
-		returnError(res, 500, 'Failed to update balance');
-	}
-}); */
 
 usersRouter.patch('/username', async (req, res) => {
 	const id = req.userId;

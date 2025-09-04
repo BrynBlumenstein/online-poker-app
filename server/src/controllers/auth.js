@@ -30,7 +30,7 @@ authRouter.post('/sign-up', async (req, res) => {
 		password_hash: hashedPassword
 	});
 
-	const { password_hash, /* balance, */ winnings, hands_won, ...userData } =
+	const { password_hash, winnings, hands_won, ...userData } =
 		user.toJSON();
 	res.status(201).json(userData);
 });

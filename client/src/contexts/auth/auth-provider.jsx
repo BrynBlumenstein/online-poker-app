@@ -56,13 +56,6 @@ const AuthProvider = ({ children }) => {
 		return updatedUser;
 	};
 
-	/* const updateBalance = async (newBalance) => {
-		const token = tokenService.get();
-		const updatedUser = await usersService.updateBalance(newBalance, token);
-		updateUser({ balance: updatedUser.balance });
-		return updatedUser;
-	}; */
-
 	const unfollowUser = async (followingId) => {
 		const token = tokenService.get();
 		const response = await usersService.unfollowUser(followingId, token);
@@ -96,7 +89,6 @@ const AuthProvider = ({ children }) => {
 				signIn,
 				signOut,
 				updateUsername,
-				// updateBalance,
 				unfollowUser,
 				followUser,
 				getAllUsers,
