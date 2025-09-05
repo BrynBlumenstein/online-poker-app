@@ -266,13 +266,18 @@ const handleStartHand = (io, socket, ack) => {
 
 	socket
 		.to(result.table.id)
-		.emit('handStarted', `${socket.username} started the hand`);
+		.emit(
+			'handStarted',
+			`${socket.username} started the hand, hole cards dealt, and blinds posted`
+		);
 	io.to(result.table.id).emit('tableUpdated', {
 		...result.table,
 		players: Array.from(result.table.players.entries())
 	});
 
-	logger.info(`${socket.username} started the hand`);
+	logger.info(
+		`${socket.username} started the hand, hole cards dealt, and blinds posted`
+	);
 	ack({ ok: true });
 };
 

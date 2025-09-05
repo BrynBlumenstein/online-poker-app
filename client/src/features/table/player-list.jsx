@@ -19,12 +19,6 @@ const PlayerList = () => {
 				<Divider variant="middle" />
 				{table.seats.map((userId, index) => {
 					const player = table.players.get(userId);
-					userId &&
-						console.log(
-							player.username,
-							table.handActive,
-							player.inHand
-						);
 					return userId ? (
 						<React.Fragment key={userId}>
 							<ListItem>
@@ -60,12 +54,6 @@ const PlayerList = () => {
 								(player.inHand || !table.handActive) ? (
 									<ListItemAvatar>
 										<Avatar>BB</Avatar>
-									</ListItemAvatar>
-								) : null}
-								{index === table.actionOnIndex &&
-								(player.inHand || !table.handActive) ? (
-									<ListItemAvatar>
-										<Avatar>A</Avatar>
 									</ListItemAvatar>
 								) : null}
 							</ListItem>

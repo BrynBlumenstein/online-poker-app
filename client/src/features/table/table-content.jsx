@@ -21,13 +21,19 @@ const TableContent = () => {
 					sx={{ height: '500px' }}
 				>
 					<DealerActions />
-					<Typography variant="h3">Pot: ${table.pot}</Typography>
+					<Typography variant="h3">
+						{table.handActive && `Pot: $${table.pot}`}
+					</Typography>
 					<Typography variant="h4">
 						{table.street && `Street: ${table.street}`}
 					</Typography>
 					<Typography variant="h4">
-						Active bet: ${table.activeBet} | Last raise: $
-						{table.lastRaise}
+						{table.handActive &&
+							`Action on: ${table.players.get(table.seats[table.actionOnIndex]).username} | Last to act: ${table.players.get(table.seats[table.lastToActIndex]).username}`}
+					</Typography>
+					<Typography variant="h4">
+						{table.handActive &&
+							`Active bet: $${table.activeBet} | Last raise: $${table.lastRaise}`}
 					</Typography>
 					<BoardCards />
 					<Stack spacing={3}>

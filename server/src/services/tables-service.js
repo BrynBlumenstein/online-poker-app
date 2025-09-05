@@ -30,14 +30,16 @@ const hostTable = (socketId, userId, username) => {
 		handActive: false,
 		pot: 0,
 		deck: [],
+		boardCards: [],
 		dealerIndex: -1,
 		smallBlindIndex: -1,
 		bigBlindIndex: -1,
 		actionOnIndex: -1,
+		lastToActIndex: -1,
 		activeBet: 0,
 		lastRaise: 0,
 		minRaise: 0,
-		street: null,
+		street: null
 	};
 
 	const player = {
@@ -276,6 +278,98 @@ const buyIn = (userId, amount) => {
 	return { success: true, table };
 };
 
+const dealFlop = (table) => {
+	for (let i = 0; i < 3; i++) {
+		table.boardCards.push(table.deck.pop());
+	}
+};
+
+const dealTurnOrRiver = (table) => {
+	table.boardCards.push(table.deck.pop());
+};
+
+const findPrevInHandSeat = (table, startIndex) => {
+	let length = table.seats.length;
+
+	for (let offset = 1; offset <= length; offset++) {
+		const index = (startIndex - offset + length) % length;
+		const playerId = table.seats[index];
+		if (playerId !== null && table.players.get(playerId).inHand) {
+			return index;
+		}
+	}
+
+	return -1;
+};
+
+const findLastToActIndex = (table) => {
+	const dealerId = table.seats[dealerIndex];
+	if (dealerId && table.players.get(dealerId).inHand) {
+		return table.dealerIndex;
+	}
+
+	return findPrevInHandSeat(table, table.actionOnIndex);
+};
+
+const advanceStreet = (table) => {
+	const smallBlindId = table.seats[smallBlindIndex];
+	smallBlindId && table.players.get(smallBlindId).inHand
+		? (table.actionOnIndex = smallBlindIndex)
+		: (table.actionOnIndex = findNextInHandSeat(
+				table,
+				table.smallBlindIndex
+		  ));
+
+	if (table.street === 'preflop') {
+		table.street === 'flop';
+		dealFlop(table);
+	} else if (table.street === 'flop') {
+		table.street === 'turn';
+		dealTurnOrRiver(table);
+	} else if (table.street === 'turn') {
+		table.street === 'river';
+		dealTurnOrRiver(table);
+	}
+
+	table.lastToActIndex = findLastToActIndex(table);
+	table.activeBet = 0;
+	table.lastRaise = 0;
+};
+
+const advanceTurn = (userId, table) => {
+	if (table.seats[table.lastToActIndex] === userId) {
+		advanceStreet(table);
+		return;
+	}
+
+	table.actionOnIndex = findNextInHandSeat(table, table.actionOnIndex);
+};
+
+const endHand = (table) => {
+	const winner = table.players.get(table.playersInHand[0]); // TODO determine winner for all cases (this is all players folded case)
+	winner.stack += table.pot;
+
+	table.playersInHand.forEach((id) => {
+		const player = table.players.get(id);
+		player.inHand = false;
+		player.currentBet = 0;
+		player.holeCards = [];
+	});
+
+	table.playersInHand = [];
+	table.handActive = false;
+	table.pot = 0;
+	table.deck = [];
+	table.boardCards = [];
+	moveMarkers(table, 'handEnded');
+	table.actionOnIndex = -1;
+	table.lastToActIndex = -1;
+	table.activeBet = 0;
+	table.lastRaise = 0;
+	table.minRaise = 0;
+	table.street = null;
+};
+
 const fold = (userId) => {
 	const table = getCurrentTable(userId);
 	if (!table) {
@@ -284,7 +378,21 @@ const fold = (userId) => {
 
 	const player = table.players.get(userId);
 
-	// TODO
+	player.inHand = false;
+	player.currentBet = 0;
+	player.holeCards = [];
+
+	const playerInHandIndex = table.playersInHand.indexOf(userId);
+	if (playerInHandIndex !== -1) {
+		table.playersInHand.splice(playerInHandIndex, 1);
+	}
+
+	if (table.playersInHand.length === 1) {
+		endHand(table);
+		return { success: true, table };
+	}
+
+	advanceTurn(userId, table);
 
 	return { success: true, table };
 };
@@ -411,13 +519,11 @@ const startHand = (userId) => {
 
 	table.deck = deck;
 
-	table.playersInHand.forEach((playerId) => {
-		table.players.get(playerId).holeCards = [table.deck.pop()];
-	});
-
-	table.playersInHand.forEach((playerId) => {
-		table.players.get(playerId).holeCards.push(table.deck.pop());
-	});
+	for (let i = 0; i < 2; i++) {
+		table.playersInHand.forEach((playerId) => {
+			table.players.get(playerId).holeCards.push(table.deck.pop());
+		});
+	}
 
 	table.street = 'preflop';
 
@@ -437,6 +543,7 @@ const startHand = (userId) => {
 	table.minRaise = table.activeBet + table.lastRaise;
 
 	table.actionOnIndex = findNextInHandSeat(table, table.bigBlindIndex);
+	table.lastToActIndex = table.bigBlindIndex;
 
 	return { success: true, table };
 };

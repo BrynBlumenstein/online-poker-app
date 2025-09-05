@@ -226,7 +226,7 @@ const TableProvider = ({ children }) => {
 				return;
 			}
 
-			showSnackbar('Started hand');
+			showSnackbar('Started the hand, hole cards dealt, and blinds posted');
 		});
 	};
 
