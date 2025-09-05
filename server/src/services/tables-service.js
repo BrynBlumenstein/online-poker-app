@@ -25,10 +25,12 @@ const hostTable = (socketId, userId, username) => {
 		blindAmounts: [0.25, 0.5],
 		players: new Map(),
 		seats: Array(MAX_PLAYERS).fill(null),
+		playersBoughtIn: [],
+		playersInHand: [],
 		handActive: false,
 		pot: 0,
 		deck: [],
-		dealerIndex: 0,
+		dealerIndex: -1,
 		smallBlindIndex: -1,
 		bigBlindIndex: -1,
 		currentPlayerIndex: -1,
@@ -53,53 +55,18 @@ const hostTable = (socketId, userId, username) => {
 	return { success: true, table };
 };
 
-const findNextFilledSeat = (seats, startIndex) => {
-	let length = seats.length;
-	if (length === 0) {
-		return -1;
-	}
+const findNextValidSeat = (table, startIndex) => {
+	let length = table.seats.length;
 
 	for (let offset = 1; offset <= length; offset++) {
 		const index = (startIndex + offset) % length;
-		if (seats[index] !== null) {
+		const playerId = table.seats[index];
+		if (playerId !== null && table.players.get(playerId).hasBoughtIn) {
 			return index;
 		}
 	}
 
 	return -1;
-};
-
-const moveMarkers = (table, reason = null, playerIndex = null) => {
-	if (table.players.size === 1) {
-		table.dealerIndex = table.seats.findIndex((id) => id !== null);
-		table.smallBlindIndex = -1;
-		table.bigBlindIndex = -1;
-		return;
-	}
-
-	if (
-		reason === 'handEnded' ||
-		(reason === 'playerLeft' && playerIndex === table.dealerIndex)
-	) {
-		table.dealerIndex = findNextFilledSeat(table.seats, table.dealerIndex);
-	}
-
-	if (table.players.size === 2) {
-		table.smallBlindIndex = table.dealerIndex;
-		table.bigBlindIndex = findNextFilledSeat(
-			table.seats,
-			table.dealerIndex
-		);
-	} else {
-		table.smallBlindIndex = findNextFilledSeat(
-			table.seats,
-			table.dealerIndex
-		);
-		table.bigBlindIndex = findNextFilledSeat(
-			table.seats,
-			table.smallBlindIndex
-		);
-	}
 };
 
 const joinTable = (socketId, userId, username, tableId) => {
@@ -135,10 +102,6 @@ const joinTable = (socketId, userId, username, tableId) => {
 	table.seats[seatIndex] = userId;
 	player.socketIds.add(socketId);
 
-	if (!table.handActive) {
-		moveMarkers(table);
-	}
-
 	if (disconnectTimers.has(userId)) {
 		clearTimeout(disconnectTimers.get(userId));
 		disconnectTimers.delete(userId);
@@ -166,6 +129,11 @@ const leaveTable = (userId, tableId) => {
 	const seatIndex = table.seats.indexOf(userId);
 	if (seatIndex !== -1) {
 		table.seats[seatIndex] = null;
+	}
+
+	const boughtInIndex = table.playersBoughtIn.indexOf(userId);
+	if (boughtInIndex !== -1) {
+		table.playersBoughtIn.splice(boughtInIndex, 1);
 	}
 
 	table.players.delete(userId);
@@ -217,6 +185,11 @@ const handleSocketDisconnect = (io, socket) => {
 			table.seats[seatIndex] = null;
 		}
 
+		const boughtInIndex = stillTable.playersBoughtIn.indexOf(userId);
+		if (boughtInIndex !== -1) {
+			stillTable.playersBoughtIn.splice(boughtInIndex, 1);
+		}
+
 		stillTable.players.delete(userId);
 		disconnectTimers.delete(userId);
 
@@ -250,6 +223,32 @@ const addSocketToPlayer = (table, socketId, userId) => {
 	player.socketIds.add(socketId);
 };
 
+const moveMarkers = (table, reason = null, playerIndex = null) => {
+	if (table.playersBoughtIn.length === 1) {
+		table.dealerIndex = table.seats.findIndex((id) => {
+			return id === table.playersBoughtIn[0];
+		});
+		table.smallBlindIndex = -1;
+		table.bigBlindIndex = -1;
+		return;
+	}
+
+	if (
+		reason === 'handEnded' ||
+		(reason === 'playerLeft' && playerIndex === table.dealerIndex)
+	) {
+		table.dealerIndex = findNextValidSeat(table, table.dealerIndex);
+	}
+
+	if (table.playersBoughtIn.length === 2) {
+		table.smallBlindIndex = table.dealerIndex;
+		table.bigBlindIndex = findNextValidSeat(table, table.dealerIndex);
+	} else {
+		table.smallBlindIndex = findNextValidSeat(table, table.dealerIndex);
+		table.bigBlindIndex = findNextValidSeat(table, table.smallBlindIndex);
+	}
+};
+
 const buyIn = (userId, amount) => {
 	const table = getCurrentTable(userId);
 	if (!table) {
@@ -260,6 +259,11 @@ const buyIn = (userId, amount) => {
 
 	player.stack = amount;
 	player.hasBoughtIn = true;
+	table.playersBoughtIn.push(userId);
+
+	if (!table.handActive) {
+		moveMarkers(table);
+	}
 
 	return { success: true, table };
 };
@@ -343,10 +347,15 @@ const startHand = (userId) => {
 		return { error: 'Only dealer can start' };
 	}
 
+	if (table.playersBoughtIn.length < 2) {
+		return { error: 'Need at least two players bought in to start' };
+	}
+
 	table.handActive = true;
 
-	table.players.forEach((player) => {
-		player.inHand = player.hasBoughtIn;
+	table.playersBoughtIn.forEach((playerId) => {
+		table.players.get(playerId).inHand = true;
+		table.playersInHand.push(playerId);
 	});
 
 	const suits = ['hearts', 'diamonds', 'clubs', 'spades'];
@@ -380,16 +389,12 @@ const startHand = (userId) => {
 
 	table.deck = deck;
 
-	const inHandPlayers = Array.from(table.players.values()).filter(
-		(p) => p.inHand
-	);
-
-	inHandPlayers.forEach((player) => {
-		player.holeCards = [table.deck.pop()];
+	table.playersInHand.forEach((playerId) => {
+		table.players.get(playerId).holeCards = [table.deck.pop()];
 	});
 
-	inHandPlayers.forEach((player) => {
-		player.holeCards.push(table.deck.pop());
+	table.playersInHand.forEach((playerId) => {
+		table.players.get(playerId).holeCards.push(table.deck.pop());
 	});
 
 	return { success: true, table };
