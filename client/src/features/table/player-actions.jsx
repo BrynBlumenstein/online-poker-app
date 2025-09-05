@@ -14,10 +14,17 @@ const PlayerActions = () => {
 	const [actionsDisabled, setActionsDisabled] = useState(true);
 
 	useEffect(() => {
-		if (table.currentPlayerId !== user.id) {
+		const actionOnIndex = table.actionOnIndex;
+		if (
+			actionOnIndex === -1 ||
+			!table.players.get(user.id).inHand ||
+			table.seats[actionOnIndex] !== user.id
+		) {
+			setActionsDisabled(true);
+		} else {
 			setActionsDisabled(false);
 		}
-	}, [table.currentPlayerId, user.id]);
+	}, [table.actionOnIndex, table.players, table.seats, user.id]);
 
 	return (
 		<Stack direction="row" justifyContent="center" spacing={3}>

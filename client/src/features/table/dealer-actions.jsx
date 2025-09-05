@@ -11,12 +11,16 @@ const DealerActions = () => {
 
 	useEffect(() => {
 		const dealerIndex = table.dealerIndex;
-		if (dealerIndex === -1 || table.seats[dealerIndex] !== user.id) {
+		if (
+			table.handActive ||
+			dealerIndex === -1 ||
+			table.seats[dealerIndex] !== user.id
+		) {
 			setActionsDisabled(true);
 		} else {
 			setActionsDisabled(false);
 		}
-	}, [table.dealerIndex, table.seats, user.id]);
+	}, [table.dealerIndex, table.handActive, table.seats, user.id]);
 
 	return (
 		<Stack direction="row" justifyContent="center" spacing={3}>

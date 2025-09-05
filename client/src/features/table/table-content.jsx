@@ -22,6 +22,13 @@ const TableContent = () => {
 				>
 					<DealerActions />
 					<Typography variant="h3">Pot: ${table.pot}</Typography>
+					<Typography variant="h4">
+						{table.street && `Street: ${table.street}`}
+					</Typography>
+					<Typography variant="h4">
+						Active bet: ${table.activeBet} | Last raise: $
+						{table.lastRaise}
+					</Typography>
 					<BoardCards />
 					<Stack spacing={3}>
 						<HoleCards />

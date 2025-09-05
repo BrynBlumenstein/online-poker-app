@@ -36,22 +36,36 @@ const PlayerList = () => {
 											: 'Has not bought in yet'
 									}
 								/>
+								<ListItemText
+									primary=""
+									secondary={
+										player.inHand
+											? `Current bet: $${player.currentBet}`
+											: ''
+									}
+								/>
 								{index === table.dealerIndex &&
 								(player.inHand || !table.handActive) ? (
 									<ListItemAvatar>
 										<Avatar>D</Avatar>
 									</ListItemAvatar>
 								) : null}
-								{index === table.dealerIndex &&
+								{index === table.smallBlindIndex &&
 								(player.inHand || !table.handActive) ? (
 									<ListItemAvatar>
 										<Avatar>SB</Avatar>
 									</ListItemAvatar>
 								) : null}
-								{index === table.dealerIndex &&
+								{index === table.bigBlindIndex &&
 								(player.inHand || !table.handActive) ? (
 									<ListItemAvatar>
 										<Avatar>BB</Avatar>
+									</ListItemAvatar>
+								) : null}
+								{index === table.actionOnIndex &&
+								(player.inHand || !table.handActive) ? (
+									<ListItemAvatar>
+										<Avatar>A</Avatar>
 									</ListItemAvatar>
 								) : null}
 							</ListItem>

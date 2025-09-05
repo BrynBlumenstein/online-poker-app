@@ -33,8 +33,11 @@ const hostTable = (socketId, userId, username) => {
 		dealerIndex: -1,
 		smallBlindIndex: -1,
 		bigBlindIndex: -1,
-		currentPlayerIndex: -1,
-		minRaise: 0
+		actionOnIndex: -1,
+		activeBet: 0,
+		lastRaise: 0,
+		minRaise: 0,
+		street: null,
 	};
 
 	const player = {
@@ -44,7 +47,8 @@ const hostTable = (socketId, userId, username) => {
 		hasBoughtIn: false,
 		stack: 0,
 		inHand: false,
-		holeCards: []
+		holeCards: [],
+		currentBet: 0
 	};
 	table.players.set(userId, player);
 	table.seats[0] = userId;
@@ -53,20 +57,6 @@ const hostTable = (socketId, userId, username) => {
 	tables.set(id, table);
 
 	return { success: true, table };
-};
-
-const findNextValidSeat = (table, startIndex) => {
-	let length = table.seats.length;
-
-	for (let offset = 1; offset <= length; offset++) {
-		const index = (startIndex + offset) % length;
-		const playerId = table.seats[index];
-		if (playerId !== null && table.players.get(playerId).hasBoughtIn) {
-			return index;
-		}
-	}
-
-	return -1;
 };
 
 const joinTable = (socketId, userId, username, tableId) => {
@@ -96,7 +86,8 @@ const joinTable = (socketId, userId, username, tableId) => {
 		hasBoughtIn: false,
 		stack: 0,
 		inHand: false,
-		holeCards: []
+		holeCards: [],
+		currentBet: 0
 	};
 	table.players.set(userId, player);
 	table.seats[seatIndex] = userId;
@@ -223,6 +214,20 @@ const addSocketToPlayer = (table, socketId, userId) => {
 	player.socketIds.add(socketId);
 };
 
+const findNextBoughtInSeat = (table, startIndex) => {
+	let length = table.seats.length;
+
+	for (let offset = 1; offset <= length; offset++) {
+		const index = (startIndex + offset) % length;
+		const playerId = table.seats[index];
+		if (playerId !== null && table.players.get(playerId).hasBoughtIn) {
+			return index;
+		}
+	}
+
+	return -1;
+};
+
 const moveMarkers = (table, reason = null, playerIndex = null) => {
 	if (table.playersBoughtIn.length === 1) {
 		table.dealerIndex = table.seats.findIndex((id) => {
@@ -237,15 +242,18 @@ const moveMarkers = (table, reason = null, playerIndex = null) => {
 		reason === 'handEnded' ||
 		(reason === 'playerLeft' && playerIndex === table.dealerIndex)
 	) {
-		table.dealerIndex = findNextValidSeat(table, table.dealerIndex);
+		table.dealerIndex = findNextBoughtInSeat(table, table.dealerIndex);
 	}
 
 	if (table.playersBoughtIn.length === 2) {
 		table.smallBlindIndex = table.dealerIndex;
-		table.bigBlindIndex = findNextValidSeat(table, table.dealerIndex);
+		table.bigBlindIndex = findNextBoughtInSeat(table, table.dealerIndex);
 	} else {
-		table.smallBlindIndex = findNextValidSeat(table, table.dealerIndex);
-		table.bigBlindIndex = findNextValidSeat(table, table.smallBlindIndex);
+		table.smallBlindIndex = findNextBoughtInSeat(table, table.dealerIndex);
+		table.bigBlindIndex = findNextBoughtInSeat(
+			table,
+			table.smallBlindIndex
+		);
 	}
 };
 
@@ -333,6 +341,20 @@ const allIn = (userId, amount) => {
 	return { success: true, table };
 };
 
+const findNextInHandSeat = (table, startIndex) => {
+	let length = table.seats.length;
+
+	for (let offset = 1; offset <= length; offset++) {
+		const index = (startIndex + offset) % length;
+		const playerId = table.seats[index];
+		if (playerId !== null && table.players.get(playerId).inHand) {
+			return index;
+		}
+	}
+
+	return -1;
+};
+
 const startHand = (userId) => {
 	const table = getCurrentTable(userId);
 	if (!table) {
@@ -396,6 +418,25 @@ const startHand = (userId) => {
 	table.playersInHand.forEach((playerId) => {
 		table.players.get(playerId).holeCards.push(table.deck.pop());
 	});
+
+	table.street = 'preflop';
+
+	const smallBlind = table.players.get(table.seats[table.smallBlindIndex]);
+	const smallBlindAmount = table.blindAmounts[0];
+	smallBlind.stack -= smallBlindAmount;
+	smallBlind.currentBet = smallBlindAmount;
+
+	const bigBlind = table.players.get(table.seats[table.bigBlindIndex]);
+	const bigBlindAmount = table.blindAmounts[1];
+	bigBlind.stack -= bigBlindAmount;
+	bigBlind.currentBet = bigBlindAmount;
+
+	table.pot += table.pot += smallBlindAmount + bigBlindAmount;
+	table.activeBet = bigBlindAmount;
+	table.lastRaise = bigBlindAmount;
+	table.minRaise = table.activeBet + table.lastRaise;
+
+	table.actionOnIndex = findNextInHandSeat(table, table.bigBlindIndex);
 
 	return { success: true, table };
 };
