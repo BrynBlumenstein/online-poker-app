@@ -347,6 +347,7 @@ const advanceStreet = (table) => {
 	table.lastToActIndex = findLastToActIndex(table);
 	table.activeBet = 0;
 	table.lastRaise = 0;
+	table.minRaise = table.blindAmounts[1];
 
 	table.playersInHand.forEach((id) => {
 		table.players.get(id).currentBet = 0;
@@ -463,7 +464,7 @@ const call = (userId) => {
 		};
 	}
 
-	player.currentBet = table.activeBet;
+	player.currentBet += amountToCall;
 	player.stack -= amountToCall;
 	table.pot += amountToCall;
 
@@ -472,15 +473,49 @@ const call = (userId) => {
 	return { success: true, table };
 };
 
-const raise = (userId, amount) => {
+const raise = (userId, newActiveBet) => {
 	const table = getCurrentTable(userId);
 	if (!table) {
 		return { success: false, error: 'Table not found' };
 	}
 
 	const player = table.players.get(userId);
+	const amountToCall = table.activeBet - player.currentBet;
 
-	// TODO
+	if (player.stack <= amountToCall) {
+		return {
+			success: false,
+			error: 'You must go all in to stay in the hand'
+		};
+	}
+
+	if (newActiveBet < table.minRaise) {
+		return {
+			success: false,
+			error: 'Match or exceed minimum raise amount'
+		};
+	}
+
+	const contribution = newActiveBet - player.currentBet;
+
+	if (contribution > player.stack) {
+		return { success: false, error: 'You cannot raise more than you have' };
+	}
+
+	if (contribution === player.stack) {
+		return { success: false, error: 'Go all in' };
+	}
+
+	player.currentBet += contribution;
+	player.stack -= contribution;
+	table.pot += contribution;
+
+	table.lastRaise = newActiveBet - table.activeBet;
+	table.activeBet = newActiveBet;
+	table.lastToActIndex = findPrevInHandSeat(table, table.actionOnIndex);
+	table.minRaise = table.activeBet + table.lastRaise;
+
+	advanceTurn(userId, table);
 
 	return { success: true, table };
 };
