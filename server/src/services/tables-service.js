@@ -39,7 +39,8 @@ const hostTable = (socketId, userId, username) => {
 		activeBet: 0,
 		lastRaise: 0,
 		minRaise: 0,
-		street: null
+		street: null,
+		headsUpHand: false
 	};
 
 	const player = {
@@ -294,7 +295,7 @@ const findPrevInHandSeat = (table, startIndex) => {
 	for (let offset = 1; offset <= length; offset++) {
 		const index = (startIndex - offset + length) % length;
 		const playerId = table.seats[index];
-		if (playerId !== null && table.players.get(playerId).inHand) {
+		if (playerId && table.players.get(playerId).inHand) {
 			return index;
 		}
 	}
@@ -303,7 +304,7 @@ const findPrevInHandSeat = (table, startIndex) => {
 };
 
 const findLastToActIndex = (table) => {
-	const dealerId = table.seats[dealerIndex];
+	const dealerId = table.seats[table.dealerIndex];
 	if (dealerId && table.players.get(dealerId).inHand) {
 		return table.dealerIndex;
 	}
@@ -312,36 +313,55 @@ const findLastToActIndex = (table) => {
 };
 
 const advanceStreet = (table) => {
-	const smallBlindId = table.seats[smallBlindIndex];
-	smallBlindId && table.players.get(smallBlindId).inHand
-		? (table.actionOnIndex = smallBlindIndex)
-		: (table.actionOnIndex = findNextInHandSeat(
-				table,
-				table.smallBlindIndex
-		  ));
+	if (table.headsUpHand) {
+		const bigBlindId = table.seats[table.bigBlindIndex];
+		bigBlindId && table.players.get(bigBlindId).inHand
+			? (table.actionOnIndex = table.bigBlindIndex)
+			: (table.actionOnIndex = findNextInHandSeat(
+					table,
+					table.bigBlindIndex
+			  ));
+	} else {
+		const smallBlindId = table.seats[table.smallBlindIndex];
+		smallBlindId && table.players.get(smallBlindId).inHand
+			? (table.actionOnIndex = table.smallBlindIndex)
+			: (table.actionOnIndex = findNextInHandSeat(
+					table,
+					table.smallBlindIndex
+			  ));
+	}
 
 	if (table.street === 'preflop') {
-		table.street === 'flop';
+		table.street = 'flop';
 		dealFlop(table);
 	} else if (table.street === 'flop') {
-		table.street === 'turn';
+		table.street = 'turn';
 		dealTurnOrRiver(table);
 	} else if (table.street === 'turn') {
-		table.street === 'river';
+		table.street = 'river';
 		dealTurnOrRiver(table);
+	} else if (table.street === 'river') {
+		endHand(table); // TODO this may not be the final place for this
 	}
 
 	table.lastToActIndex = findLastToActIndex(table);
 	table.activeBet = 0;
 	table.lastRaise = 0;
+
+	table.playersInHand.forEach((id) => {
+		table.players.get(id).currentBet = 0;
+	});
 };
 
 const advanceTurn = (userId, table) => {
+	console.log(`${table.players.get(userId).username} advancing turn`);
 	if (table.seats[table.lastToActIndex] === userId) {
+		console.log('advancing street');
 		advanceStreet(table);
 		return;
 	}
 
+	console.log('finding next player');
 	table.actionOnIndex = findNextInHandSeat(table, table.actionOnIndex);
 };
 
@@ -368,6 +388,7 @@ const endHand = (table) => {
 	table.lastRaise = 0;
 	table.minRaise = 0;
 	table.street = null;
+	table.headsUpHand = false;
 };
 
 const fold = (userId) => {
@@ -377,6 +398,10 @@ const fold = (userId) => {
 	}
 
 	const player = table.players.get(userId);
+
+	if (table.activeBet === 0 || table.activeBet === player.currentBet) {
+		return { success: false, error: 'No bet to fold to, check or raise' };
+	}
 
 	player.inHand = false;
 	player.currentBet = 0;
@@ -405,7 +430,14 @@ const check = (userId) => {
 
 	const player = table.players.get(userId);
 
-	// TODO
+	if (table.activeBet > 0 && player.currentBet !== table.activeBet) {
+		return {
+			success: false,
+			error: 'Cannot check to a bet, fold, call, raise, or go all in'
+		};
+	}
+
+	advanceTurn(userId, table);
 
 	return { success: true, table };
 };
@@ -418,7 +450,24 @@ const call = (userId) => {
 
 	const player = table.players.get(userId);
 
-	// TODO
+	if (table.activeBet === 0 || table.activeBet === player.currentBet) {
+		return { success: false, error: 'No bet to call, check or raise' };
+	}
+
+	const amountToCall = table.activeBet - player.currentBet;
+
+	if (player.stack <= amountToCall) {
+		return {
+			success: false,
+			error: 'You must go all in to stay in the hand'
+		};
+	}
+
+	player.currentBet = table.activeBet;
+	player.stack -= amountToCall;
+	table.pot += amountToCall;
+
+	advanceTurn(userId, table);
 
 	return { success: true, table };
 };
@@ -487,6 +536,10 @@ const startHand = (userId) => {
 		table.players.get(playerId).inHand = true;
 		table.playersInHand.push(playerId);
 	});
+
+	if (table.playersInHand.length === 2) {
+		table.headsUpHand = true;
+	}
 
 	const suits = ['hearts', 'diamonds', 'clubs', 'spades'];
 	const ranks = [
